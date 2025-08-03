@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/music_theory.dart';
 import '../widgets/fretboard_widget.dart';
 import '../models/caged_system.dart';
-import '../screens/scale_practice_screen.dart';
+
 
 class EnhancedKeyDetailDialog extends StatefulWidget {
   final MusicKey musicKey;
@@ -24,7 +24,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -65,10 +65,8 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                 controller: _tabController,
                 children: [
                   _buildScaleAnalysisTab(),
-                  _buildChordProgressionTab(),
                   _buildFretboardMapTab(),
                   _buildCAGEDTab(),
-                  _buildPracticeTab(),
                 ],
               ),
             ),
@@ -219,10 +217,8 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
         ),
         tabs: const [
           Tab(text: '音阶分析'),
-          Tab(text: '和弦进行'),
           Tab(text: '指板图谱'),
           Tab(text: 'CAGED'),
-          Tab(text: '练习'),
         ],
       ),
     );
@@ -538,36 +534,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
     );
   }
 
-  Widget _buildChordProgressionTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader('常用和弦 (I-IV-V)', '调内最重要的三个和弦'),
-          const SizedBox(height: 16),
-          
-          // 功能正在完善
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8F9FA),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(
-              child: Text(
-                '和弦进行分析功能正在完善中...',
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  color: const Color(0xFF666666),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildFretboardMapTab() {
     return SingleChildScrollView(
@@ -1049,105 +1016,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
     );
   }
 
-  Widget _buildPracticeTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader('练习模式', '针对该调性的专项练习'),
-          const SizedBox(height: 16),
-          
-          _buildPracticeCard(
-            '音阶记忆练习',
-            '练习${widget.musicKey.name}音阶的记忆',
-            Icons.school,
-            const Color(0xFF3B82F6),
-            () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ScalePracticeScreen(
-                    selectedKey: widget.musicKey,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildPracticeCard(
-    String title,
-    String description,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE5E5E5)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF1A1A1A),
-                    ),
-                  ),
-                  Text(
-                    description,
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: const Color(0xFF666666),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: const Color(0xFFCCCCCC),
-              size: 16,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
+
 }

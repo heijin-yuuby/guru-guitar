@@ -57,103 +57,203 @@ class CAGEDSystem {
     ];
   }
 
-  // C形状和弦
+  // C形状和弦 - 全指板位置
   static CAGEDChord _getCShape(String rootNote, int rootIndex) {
-    // C和弦在第3品的位置计算
-    int baseFret = (rootIndex + 12 - 0) % 12; // 相对于C的偏移
-    if (baseFret == 0) baseFret = 8; // C调使用8品位置
+    List<CAGEDPosition> allPositions = [];
+    
+    // C形状的相对位置模式 (相对于根音位置)
+    List<Map<String, dynamic>> pattern = [
+      {'string': 5, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': true},
+      {'string': 4, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false},
+      {'string': 3, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false},
+      {'string': 2, 'fretOffset': 1, 'type': CAGEDFingerType.third, 'isRoot': false},
+      {'string': 1, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false},
+    ];
+    
+    // 计算在整个指板上的所有位置 (0-15品)
+    for (int baseFret = 0; baseFret <= 15; baseFret++) {
+      // 检查这个位置是否与根音匹配
+      int rootFretOnString5 = (baseFret + 3) % 12;
+      if (rootFretOnString5 == rootIndex) {
+        for (var pos in pattern) {
+          int actualFret = baseFret + (pos['fretOffset'] as int);
+          if (actualFret >= 0 && actualFret <= 15) {
+            allPositions.add(CAGEDPosition(
+              string: pos['string'] as int,
+              fret: actualFret,
+              type: pos['type'] as CAGEDFingerType,
+              isRoot: pos['isRoot'] as bool,
+            ));
+          }
+        }
+      }
+    }
     
     return CAGEDChord(
       name: 'C形状',
-      description: '基于C和弦的指型，适合中等把位演奏',
-      baseFret: baseFret,
-      positions: [
-        CAGEDPosition(string: 5, fret: baseFret + 3, type: CAGEDFingerType.root, isRoot: true),
-        CAGEDPosition(string: 4, fret: baseFret + 2, type: CAGEDFingerType.fifth),
-        CAGEDPosition(string: 3, fret: baseFret, type: CAGEDFingerType.root),
-        CAGEDPosition(string: 2, fret: baseFret + 1, type: CAGEDFingerType.third),
-        CAGEDPosition(string: 1, fret: baseFret, type: CAGEDFingerType.root),
-      ],
+      description: '基于C和弦的指型，全指板位置',
+      baseFret: 0, // 不再使用单一基准品格
+      positions: allPositions,
     );
   }
 
-  // A形状和弦
+  // A形状和弦 - 全指板位置
   static CAGEDChord _getAShape(String rootNote, int rootIndex) {
-    // A和弦形状，横按指型 - A在开放位置，所以根音在5弦
-    int baseFret = (rootIndex + 12 - 9) % 12; // 相对于A的偏移
-    if (baseFret == 0) baseFret = 5; // A调使用5品位置
+    List<CAGEDPosition> allPositions = [];
+    
+    // A形状的相对位置模式 (横按指型)
+    List<Map<String, dynamic>> pattern = [
+      {'string': 5, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': true},
+      {'string': 4, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false},
+      {'string': 3, 'fretOffset': 2, 'type': CAGEDFingerType.third, 'isRoot': false},
+      {'string': 2, 'fretOffset': 2, 'type': CAGEDFingerType.root, 'isRoot': false},
+      {'string': 1, 'fretOffset': 0, 'type': CAGEDFingerType.fifth, 'isRoot': false},
+    ];
+    
+    // 计算在整个指板上的所有位置
+    for (int baseFret = 0; baseFret <= 15; baseFret++) {
+      // 检查5弦上的根音位置
+      int rootFretOnString5 = baseFret % 12;
+      if (rootFretOnString5 == rootIndex) {
+        for (var pos in pattern) {
+          int actualFret = baseFret + (pos['fretOffset'] as int);
+          if (actualFret >= 0 && actualFret <= 15) {
+            allPositions.add(CAGEDPosition(
+              string: pos['string'] as int,
+              fret: actualFret,
+              type: pos['type'] as CAGEDFingerType,
+              isRoot: pos['isRoot'] as bool,
+            ));
+          }
+        }
+      }
+    }
     
     return CAGEDChord(
       name: 'A形状',
-      description: '基于A和弦的横按指型，音色饱满',
-      baseFret: baseFret,
-      positions: [
-        CAGEDPosition(string: 5, fret: baseFret, type: CAGEDFingerType.root, isRoot: true),
-        CAGEDPosition(string: 4, fret: baseFret + 2, type: CAGEDFingerType.fifth),
-        CAGEDPosition(string: 3, fret: baseFret + 2, type: CAGEDFingerType.third),
-        CAGEDPosition(string: 2, fret: baseFret + 2, type: CAGEDFingerType.root),
-        CAGEDPosition(string: 1, fret: baseFret, type: CAGEDFingerType.fifth),
-      ],
+      description: '基于A和弦的横按指型，全指板位置',
+      baseFret: 0,
+      positions: allPositions,
     );
   }
 
-  // G形状和弦
+  // G形状和弦 - 全指板位置
   static CAGEDChord _getGShape(String rootNote, int rootIndex) {
-    // G和弦形状 - G在3品6弦，根音在6弦3品和1弦3品
-    int baseFret = (rootIndex + 12 - 7) % 12; // 相对于G的偏移
-    if (baseFret == 0) baseFret = 10; // G调使用10品位置
+    List<CAGEDPosition> allPositions = [];
+    
+    // G形状的相对位置模式
+    List<Map<String, dynamic>> pattern = [
+      {'string': 6, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': true},
+      {'string': 5, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false},
+      {'string': 4, 'fretOffset': 0, 'type': CAGEDFingerType.third, 'isRoot': false},
+      {'string': 3, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false},
+      {'string': 1, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': false},
+    ];
+    
+    // 计算在整个指板上的所有位置
+    for (int baseFret = 0; baseFret <= 12; baseFret++) { // G形状最高到12品
+      // 检查6弦上的根音位置（加3品后）
+      int rootFretOnString6 = (baseFret + 3) % 12;
+      if (rootFretOnString6 == rootIndex) {
+        for (var pos in pattern) {
+          int actualFret = baseFret + (pos['fretOffset'] as int);
+          if (actualFret >= 0 && actualFret <= 15) {
+            allPositions.add(CAGEDPosition(
+              string: pos['string'] as int,
+              fret: actualFret,
+              type: pos['type'] as CAGEDFingerType,
+              isRoot: pos['isRoot'] as bool,
+            ));
+          }
+        }
+      }
+    }
     
     return CAGEDChord(
       name: 'G形状',
-      description: '基于G和弦的指型，低音厚重',
-      baseFret: baseFret,
-      positions: [
-        CAGEDPosition(string: 6, fret: baseFret + 3, type: CAGEDFingerType.root, isRoot: true),
-        CAGEDPosition(string: 5, fret: baseFret + 2, type: CAGEDFingerType.fifth),
-        CAGEDPosition(string: 4, fret: baseFret, type: CAGEDFingerType.third),
-        CAGEDPosition(string: 3, fret: baseFret, type: CAGEDFingerType.root),
-        CAGEDPosition(string: 1, fret: baseFret + 3, type: CAGEDFingerType.root),
-      ],
+      description: '基于G和弦的指型，全指板位置',
+      baseFret: 0,
+      positions: allPositions,
     );
   }
 
-  // E形状和弦
+  // E形状和弦 - 全指板位置
   static CAGEDChord _getEShape(String rootNote, int rootIndex) {
-    // E和弦形状，横按指型 - E在开放位置，根音在6弦
-    int baseFret = (rootIndex + 12 - 4) % 12; // 相对于E的偏移
-    if (baseFret == 0) baseFret = 3; // E调使用3品位置
+    List<CAGEDPosition> allPositions = [];
+    
+    // E形状的相对位置模式 (横按指型)
+    List<Map<String, dynamic>> pattern = [
+      {'string': 6, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': true},
+      {'string': 5, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false},
+      {'string': 4, 'fretOffset': 2, 'type': CAGEDFingerType.root, 'isRoot': false},
+      {'string': 3, 'fretOffset': 1, 'type': CAGEDFingerType.third, 'isRoot': false},
+      {'string': 2, 'fretOffset': 0, 'type': CAGEDFingerType.fifth, 'isRoot': false},
+      {'string': 1, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false},
+    ];
+    
+    // 计算在整个指板上的所有位置
+    for (int baseFret = 0; baseFret <= 15; baseFret++) {
+      // 检查6弦上的根音位置
+      int rootFretOnString6 = baseFret % 12;
+      if (rootFretOnString6 == rootIndex) {
+        for (var pos in pattern) {
+          int actualFret = baseFret + (pos['fretOffset'] as int);
+          if (actualFret >= 0 && actualFret <= 15) {
+            allPositions.add(CAGEDPosition(
+              string: pos['string'] as int,
+              fret: actualFret,
+              type: pos['type'] as CAGEDFingerType,
+              isRoot: pos['isRoot'] as bool,
+            ));
+          }
+        }
+      }
+    }
     
     return CAGEDChord(
       name: 'E形状',
-      description: '基于E和弦的横按指型，最常用的形状',
-      baseFret: baseFret,
-      positions: [
-        CAGEDPosition(string: 6, fret: baseFret, type: CAGEDFingerType.root, isRoot: true),
-        CAGEDPosition(string: 5, fret: baseFret + 2, type: CAGEDFingerType.fifth),
-        CAGEDPosition(string: 4, fret: baseFret + 2, type: CAGEDFingerType.root),
-        CAGEDPosition(string: 3, fret: baseFret + 1, type: CAGEDFingerType.third),
-        CAGEDPosition(string: 2, fret: baseFret, type: CAGEDFingerType.fifth),
-        CAGEDPosition(string: 1, fret: baseFret, type: CAGEDFingerType.root),
-      ],
+      description: '基于E和弦的横按指型，全指板位置',
+      baseFret: 0,
+      positions: allPositions,
     );
   }
 
-  // D形状和弦
+  // D形状和弦 - 全指板位置
   static CAGEDChord _getDShape(String rootNote, int rootIndex) {
-    // D和弦形状 - D在2品4弦，根音在4弦2品
-    int baseFret = (rootIndex + 12 - 2) % 12; // 相对于D的偏移
-    if (baseFret == 0) baseFret = 7; // D调使用7品位置
+    List<CAGEDPosition> allPositions = [];
+    
+    // D形状的相对位置模式
+    List<Map<String, dynamic>> pattern = [
+      {'string': 4, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': true},
+      {'string': 3, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false},
+      {'string': 2, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': false},
+      {'string': 1, 'fretOffset': 2, 'type': CAGEDFingerType.third, 'isRoot': false},
+    ];
+    
+    // 计算在整个指板上的所有位置
+    for (int baseFret = 0; baseFret <= 12; baseFret++) { // D形状最高到12品
+      // 检查4弦上的根音位置
+      int rootFretOnString4 = baseFret % 12;
+      if (rootFretOnString4 == rootIndex) {
+        for (var pos in pattern) {
+          int actualFret = baseFret + (pos['fretOffset'] as int);
+          if (actualFret >= 0 && actualFret <= 15) {
+            allPositions.add(CAGEDPosition(
+              string: pos['string'] as int,
+              fret: actualFret,
+              type: pos['type'] as CAGEDFingerType,
+              isRoot: pos['isRoot'] as bool,
+            ));
+          }
+        }
+      }
+    }
     
     return CAGEDChord(
       name: 'D形状',
-      description: '基于D和弦的指型，高音清亮',
-      baseFret: baseFret,
-      positions: [
-        CAGEDPosition(string: 4, fret: baseFret, type: CAGEDFingerType.root, isRoot: true),
-        CAGEDPosition(string: 3, fret: baseFret + 2, type: CAGEDFingerType.fifth),
-        CAGEDPosition(string: 2, fret: baseFret + 3, type: CAGEDFingerType.root),
-        CAGEDPosition(string: 1, fret: baseFret + 2, type: CAGEDFingerType.third),
-      ],
+      description: '基于D和弦的指型，全指板位置',
+      baseFret: 0,
+      positions: allPositions,
     );
   }
 

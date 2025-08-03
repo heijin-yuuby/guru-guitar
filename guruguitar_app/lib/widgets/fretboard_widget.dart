@@ -385,13 +385,17 @@ class FretboardPainter extends CustomPainter {
     final color = CAGEDSystem.getFingerTypeColor(position.type);
     final text = CAGEDSystem.getFingerTypeText(position.type);
 
+    // 根据把位添加透明度渐变效果
+    final opacity = _getPositionOpacity(position.fret);
+    final circleColor = Color.fromRGBO(color.red, color.green, color.blue, opacity);
+
     // 绘制圆圈
     final circlePaint = Paint()
-      ..color = color
+      ..color = circleColor
       ..style = PaintingStyle.fill;
 
     final borderPaint = Paint()
-      ..color = Colors.white
+      ..color = Colors.white.withOpacity(opacity)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.5;
 
@@ -403,7 +407,7 @@ class FretboardPainter extends CustomPainter {
     // 如果是根音，添加额外的金色边框
     if (position.isRoot) {
       final rootPaint = Paint()
-        ..color = const Color(0xFFFFD700)
+        ..color = Color.fromRGBO(255, 215, 0, opacity)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3.0;
       canvas.drawCircle(Offset(x, y), radius + 2, rootPaint);
@@ -411,7 +415,7 @@ class FretboardPainter extends CustomPainter {
 
     // 绘制文字
     final textStyle = TextStyle(
-      color: Colors.white,
+      color: Colors.white.withOpacity(opacity),
       fontSize: 12,
       fontWeight: FontWeight.w800,
     );
@@ -429,6 +433,14 @@ class FretboardPainter extends CustomPainter {
         y - textPainter.height / 2,
       ),
     );
+  }
+
+  // 根据品格位置计算透明度，低把位更明显
+  double _getPositionOpacity(int fret) {
+    if (fret <= 3) return 1.0;        // 0-3品：完全不透明
+    if (fret <= 7) return 0.8;        // 4-7品：稍微透明
+    if (fret <= 12) return 0.6;       // 8-12品：中等透明
+    return 0.4;                       // 13品以上：较透明
   }
 
   @override
