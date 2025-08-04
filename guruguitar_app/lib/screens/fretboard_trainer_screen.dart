@@ -4,12 +4,17 @@ import 'dart:math' as math;
 import '../models/music_theory.dart';
 import '../models/guitar.dart';
 import '../widgets/fretboard_widget.dart';
+import '../utils/app_localizations.dart';
 
 enum TrainingMode {
   noteIdentification,
-  scalePositions,
-  chordShapes,
   intervalTraining,
+}
+
+enum DifficultyLevel {
+  easy,    // 找到2个音符
+  medium,  // 找到3个音符
+  hard,    // 找到4个音符
 }
 
 class FretboardTrainerScreen extends StatefulWidget {
@@ -30,6 +35,7 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
   late Animation<double> _scaleAnimation;
   
   TrainingMode _currentMode = TrainingMode.noteIdentification;
+  DifficultyLevel _currentDifficulty = DifficultyLevel.easy;
   
   // 练习状态
   bool _isTraining = false;
@@ -37,8 +43,11 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
   int _totalQuestions = 0;
   int _timeLeft = 60; // 秒
   String? _currentTargetNote;
+  int _targetNoteCount = 2; // 需要找到的音符数量
+  int _foundNoteCount = 0; // 已经找到的音符数量
 
   List<FretPosition> _highlightedPositions = [];
+  late AppLocalizations _l10n;
   
   // 当前问题
   String _questionText = '';
@@ -63,6 +72,12 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _l10n = AppLocalizations.of(context);
+  }
+
+  @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
@@ -72,12 +87,6 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
     switch (_currentMode) {
       case TrainingMode.noteIdentification:
         _initializeNoteIdentification();
-        break;
-      case TrainingMode.scalePositions:
-        _initializeScalePositions();
-        break;
-      case TrainingMode.chordShapes:
-        _initializeChordShapes();
         break;
       case TrainingMode.intervalTraining:
         _initializeIntervalTraining();
@@ -89,42 +98,62 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
     final notes = GuitarData.chromaticNotes;
     final randomNote = notes[math.Random().nextInt(notes.length)];
     
-    setState(() {
-      _currentTargetNote = randomNote;
-      _questionText = '找到所有的 $randomNote 音符';
-      _hintText = '点击指板上的正确位置';
-      _highlightedPositions = [];
-    });
-  }
-
-  void _initializeScalePositions() {
-    final rootNote = widget.selectedKey.note;
+    // 根据难度设置目标音符数量
+    switch (_currentDifficulty) {
+      case DifficultyLevel.easy:
+        _targetNoteCount = 2;
+        break;
+      case DifficultyLevel.medium:
+        _targetNoteCount = 3;
+        break;
+      case DifficultyLevel.hard:
+        _targetNoteCount = 4;
+        break;
+    }
     
     setState(() {
-      _questionText = '显示 ${widget.selectedKey.name} 音阶';
-      _hintText = '学习音阶在指板上的位置';
-      _highlightedPositions = GuitarData.getScalePositions(
-        rootNote, 
-        'major', 
-        0, 
-        12,
-      );
-    });
-  }
-
-  void _initializeChordShapes() {
-    setState(() {
-      _questionText = '和弦形状练习';
-      _hintText = '学习常用和弦指法';
+      _currentTargetNote = randomNote;
+      _foundNoteCount = 0;
+      _questionText = '找到 $_targetNoteCount 个 $randomNote 音符';
+      _hintText = '点击指板上的正确位置 (已找到: $_foundNoteCount/$_targetNoteCount)';
       _highlightedPositions = [];
     });
   }
+
+
+
+  // 音程训练相关状态
+  FretPosition? _rootPosition;
+  String? _targetInterval;
+  List<String> _intervals = ['小二度', '大二度', '小三度', '大三度', '纯四度', '三全音', '纯五度', '小六度', '大六度', '小七度', '大七度', '八度'];
+  Map<String, int> _intervalSemitones = {
+    '小二度': 1, '大二度': 2, '小三度': 3, '大三度': 4,
+    '纯四度': 5, '三全音': 6, '纯五度': 7, '小六度': 8,
+    '大六度': 9, '小七度': 10, '大七度': 11, '八度': 12,
+  };
 
   void _initializeIntervalTraining() {
+    final random = math.Random();
+    
+    // 随机选择根音位置（避免最高品位，确保有足够空间放置音程）
+    final rootString = random.nextInt(6) + 1; // 1-6弦
+    final rootFret = random.nextInt(8); // 0-7品，留出空间
+    final rootNote = GuitarData.getNoteAtFret(rootString, rootFret);
+    
+    // 随机选择音程
+    final targetInterval = _intervals[random.nextInt(_intervals.length)];
+    
     setState(() {
-      _questionText = '音程训练';
-      _hintText = '识别不同的音程关系';
+      _rootPosition = FretPosition(
+        stringNumber: rootString,
+        fret: rootFret,
+        note: rootNote,
+      );
+      _targetInterval = targetInterval;
+      _questionText = '找到距离 $rootNote 一个$targetInterval的音符';
+      _hintText = '先点击根音 $rootNote（第${rootString}弦第${rootFret}品），再点击目标音程';
       _highlightedPositions = [];
+      _foundNoteCount = 0; // 重置音符计数
     });
   }
 
@@ -139,12 +168,6 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
       case TrainingMode.noteIdentification:
         _handleNoteIdentificationTap(position);
         break;
-      case TrainingMode.scalePositions:
-        _handleScalePositionTap(position);
-        break;
-      case TrainingMode.chordShapes:
-        _handleChordShapeTap(position);
-        break;
       case TrainingMode.intervalTraining:
         _handleIntervalTrainingTap(position);
         break;
@@ -155,8 +178,17 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
     final isCorrect = position.note == _currentTargetNote;
     
     if (isCorrect) {
+      // 检查是否已经点击过这个位置
+      final alreadyClicked = _highlightedPositions.any((pos) => 
+        pos.stringNumber == position.stringNumber && pos.fret == position.fret);
+      
+      if (alreadyClicked) {
+        _showFeedback(false, _l10n.get('already_clicked'));
+        return;
+      }
+      
       setState(() {
-        _score++;
+        _foundNoteCount++;
         _highlightedPositions.add(position);
       });
       
@@ -164,26 +196,70 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
         _animationController.reverse();
       });
       
-      // 显示正确反馈
-      _showFeedback(true, '正确！');
-      
-      // 2秒后生成新问题
-      Future.delayed(const Duration(seconds: 2), () {
-        if (_isTraining) {
-          _initializeNoteIdentification();
-        }
+      // 更新提示文字
+      setState(() {
+        _hintText = '点击指板上的正确位置 (已找到: $_foundNoteCount/$_targetNoteCount)';
       });
+      
+      // 显示正确反馈
+      _showFeedback(true, '${_l10n.get('correct')}！已找到 $_foundNoteCount/$_targetNoteCount 个');
+      
+      // 检查是否完成了所有音符的寻找
+      if (_foundNoteCount >= _targetNoteCount) {
+        setState(() {
+          _score++;
+          _totalQuestions++;
+        });
+        
+        // 显示完成反馈
+        _showFeedback(true, '${_l10n.get('complete')}！找到了所有 $_targetNoteCount 个 $_currentTargetNote 音符');
+        
+        // 2秒后生成新问题
+        Future.delayed(const Duration(seconds: 2), () {
+          if (_isTraining) {
+            _initializeNoteIdentification();
+          }
+        });
+      }
     } else {
-      _showFeedback(false, '错误，再试试');
+      _showFeedback(false, _l10n.get('error'));
     }
   }
 
-  void _handleScalePositionTap(FretPosition position) {
-    // 音阶位置练习逻辑
-    final scaleNotes = widget.selectedKey.scale;
-    final isInScale = scaleNotes.contains(position.note);
+
+
+  void _handleIntervalTrainingTap(FretPosition position) {
+    if (_rootPosition == null || _targetInterval == null) return;
     
-    if (isInScale) {
+    // 检查是否点击的是根音位置
+    final isRootPosition = position.stringNumber == _rootPosition!.stringNumber && 
+                          position.fret == _rootPosition!.fret;
+    
+    if (isRootPosition) {
+      // 点击根音，高亮显示
+      setState(() {
+        if (!_highlightedPositions.any((p) => 
+            p.stringNumber == position.stringNumber && p.fret == position.fret)) {
+          _highlightedPositions.add(position);
+        }
+      });
+      _showFeedback(true, _l10n.get('root_correct', {'interval': _targetInterval!}));
+      return;
+    }
+    
+    // 计算音程
+    final rootNoteIndex = GuitarData.chromaticNotes.indexOf(_rootPosition!.note);
+    final clickedNoteIndex = GuitarData.chromaticNotes.indexOf(position.note);
+    
+    // 计算半音距离（考虑八度内的音程）
+    int semitoneDistance = (clickedNoteIndex - rootNoteIndex) % 12;
+    if (semitoneDistance == 0 && position.note != _rootPosition!.note) {
+      semitoneDistance = 12; // 八度
+    }
+    
+    final expectedSemitones = _intervalSemitones[_targetInterval!]!;
+    
+    if (semitoneDistance == expectedSemitones) {
       setState(() {
         _score++;
         if (!_highlightedPositions.any((p) => 
@@ -191,20 +267,22 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
           _highlightedPositions.add(position);
         }
       });
-      _showFeedback(true, '正确！${position.note} 在音阶中');
+      
+      _animationController.forward().then((_) {
+        _animationController.reverse();
+      });
+      
+      _showFeedback(true, _l10n.get('correct'));
+      
+      // 2秒后生成新问题
+      Future.delayed(const Duration(seconds: 2), () {
+        if (_isTraining) {
+          _initializeIntervalTraining();
+        }
+      });
     } else {
-      _showFeedback(false, '${position.note} 不在 ${widget.selectedKey.name} 中');
+      _showFeedback(false, _l10n.get('error'));
     }
-  }
-
-  void _handleChordShapeTap(FretPosition position) {
-    // 和弦形状练习逻辑
-    _showFeedback(true, '和弦练习功能开发中');
-  }
-
-  void _handleIntervalTrainingTap(FretPosition position) {
-    // 音程训练逻辑
-    _showFeedback(true, '音程训练功能开发中');
   }
 
   void _showFeedback(bool isCorrect, String message) {
@@ -229,11 +307,12 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
       backgroundColor: isCorrect 
           ? const Color(0xFF10B981) 
           : const Color(0xFFEF4444),
-      duration: const Duration(seconds: 1),
+      duration: Duration(milliseconds: isCorrect ? 600 : 300), // 正确提示稍长，错误提示更短
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      margin: const EdgeInsets.all(16), // 添加边距避免遮挡
     );
     
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -283,7 +362,7 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
           borderRadius: BorderRadius.circular(20),
         ),
         title: Text(
-          '练习结果',
+          _l10n.get('practice_result'),
           style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.w700,
@@ -293,7 +372,7 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '得分: $_score / $_totalQuestions',
+              '${_l10n.get('score')}: $_score / $_totalQuestions',
               style: GoogleFonts.inter(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -301,7 +380,7 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              '准确率: $accuracy%',
+              '${_l10n.get('accuracy')}: $accuracy%',
               style: GoogleFonts.inter(
                 fontSize: 16,
                 color: const Color(0xFF666666),
@@ -316,14 +395,14 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
               _startTraining();
             },
             child: Text(
-              '再试一次',
+              _l10n.get('try_again'),
               style: GoogleFonts.inter(fontWeight: FontWeight.w600),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              '完成',
+              _l10n.get('done'),
               style: GoogleFonts.inter(fontWeight: FontWeight.w600),
             ),
           ),
@@ -338,7 +417,7 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: Text(
-          '指板训练器',
+          _l10n.get('fretboard_trainer'),
           style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -374,6 +453,13 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
             child: _buildModeSelector(),
           ),
 
+          // 难度选择器（仅在音符识别模式下显示）
+          if (_currentMode == TrainingMode.noteIdentification)
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 24),
+              child: _buildDifficultySelector(),
+            ),
+
           // 得分显示
           if (_isTraining)
             Container(
@@ -393,9 +479,9 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildStatItem('得分', '$_score'),
-                  _buildStatItem('总数', '$_totalQuestions'),
-                  _buildStatItem('准确率', 
+                  _buildStatItem(_l10n.get('score'), '$_score'),
+                  _buildStatItem(_l10n.get('total'), '$_totalQuestions'),
+                  _buildStatItem(_l10n.get('accuracy'), 
                     _totalQuestions > 0 
                         ? '${(_score / _totalQuestions * 100).round()}%'
                         : '0%'),
@@ -403,12 +489,12 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
               ),
             ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
 
           // 问题显示
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 24),
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: const Color(0xFF1A1A1A),
               borderRadius: BorderRadius.circular(16),
@@ -463,9 +549,7 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
                 ],
               ),
               child: FretboardWidget(
-                highlightScale: _currentMode == TrainingMode.scalePositions 
-                    ? widget.selectedKey.note 
-                    : null,
+                highlightScale: null,
                 scaleType: 'major',
                 startFret: 0,
                 endFret: 12,
@@ -476,11 +560,11 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
 
           // 控制按钮
           Container(
-            margin: const EdgeInsets.all(24),
+            margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             child: Row(
               children: [
                 Expanded(
@@ -496,7 +580,7 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
                       ),
                     ),
                     child: Text(
-                      _isTraining ? '停止练习' : '开始练习',
+                      _isTraining ? _l10n.get('stop_training') : _l10n.get('start_training'),
                       style: GoogleFonts.inter(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -510,6 +594,7 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
                   onPressed: () {
                     setState(() {
                       _highlightedPositions.clear();
+                      _foundNoteCount = 0;
                     });
                     _initializeTraining();
                   },
@@ -587,13 +672,96 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
   String _getModeDisplayName(TrainingMode mode) {
     switch (mode) {
       case TrainingMode.noteIdentification:
-        return '音符识别';
-      case TrainingMode.scalePositions:
-        return '音阶位置';
-      case TrainingMode.chordShapes:
-        return '和弦形状';
+        return _l10n.get('note_identification');
       case TrainingMode.intervalTraining:
-        return '音程训练';
+        return _l10n.get('interval_training');
+    }
+  }
+
+  Widget _buildDifficultySelector() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: DifficultyLevel.values.map((difficulty) {
+          final isSelected = _currentDifficulty == difficulty;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () {
+                if (!_isTraining) {
+                  setState(() {
+                    _currentDifficulty = difficulty;
+                    _highlightedPositions.clear();
+                  });
+                  _initializeTraining();
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFF1A1A1A) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      _getDifficultyDisplayName(difficulty),
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isSelected ? Colors.white : const Color(0xFF666666),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _getDifficultyNoteCount(difficulty),
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500,
+                        color: isSelected ? Colors.white.withOpacity(0.8) : const Color(0xFF999999),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  String _getDifficultyDisplayName(DifficultyLevel difficulty) {
+    switch (difficulty) {
+      case DifficultyLevel.easy:
+        return _l10n.get('easy');
+      case DifficultyLevel.medium:
+        return _l10n.get('medium');
+      case DifficultyLevel.hard:
+        return _l10n.get('hard');
+    }
+  }
+
+  String _getDifficultyNoteCount(DifficultyLevel difficulty) {
+    switch (difficulty) {
+      case DifficultyLevel.easy:
+        return '2个音符';
+      case DifficultyLevel.medium:
+        return '3个音符';
+      case DifficultyLevel.hard:
+        return '4个音符';
     }
   }
 

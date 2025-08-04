@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:math' as math;
 import '../models/music_theory.dart';
+import '../utils/app_localizations.dart';
 import 'circle_of_fifths_screen.dart';
 import 'scale_practice_screen.dart';
-import 'chord_progression_screen.dart';
 import 'fretboard_trainer_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,17 +21,13 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     const CircleOfFifthsScreen(),
     const PracticeHubScreen(),
-    const FretboardHubScreen(),
-    const ProgressScreen(),
+    const SettingsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
+      body: _pages[_currentIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -46,12 +44,11 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildNavItem(0, Icons.account_tree_outlined, Icons.account_tree, '五度圈'),
-                _buildNavItem(1, Icons.school_outlined, Icons.school, '练习'),
-                _buildNavItem(2, Icons.grid_view_outlined, Icons.grid_view, '指板'),
-                _buildNavItem(3, Icons.analytics_outlined, Icons.analytics, '进度'),
-              ],
+                          children: [
+              _buildNavItem(0, Icons.account_tree_outlined, Icons.account_tree, '五度圈'),
+              _buildNavItem(1, Icons.school_outlined, Icons.school, '练习'),
+              _buildNavItem(2, Icons.settings_outlined, Icons.settings, '设置'),
+            ],
             ),
           ),
         ),
@@ -106,6 +103,8 @@ class PracticeHubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
@@ -115,7 +114,7 @@ class PracticeHubScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '练习中心',
+                l10n.get('scale_practice_title'),
                 style: GoogleFonts.inter(
                   fontSize: 32,
                   fontWeight: FontWeight.w800,
@@ -143,26 +142,6 @@ class PracticeHubScreen extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => ScalePracticeScreen(
-                        selectedKey: MusicTheory.circleOfFifths.first,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // 和弦进行练习卡片
-              _buildPracticeCard(
-                context,
-                '和弦进行',
-                '学习常见和弦进行模式',
-                Icons.piano,
-                const Color(0xFF10B981),
-                () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ChordProgressionScreen(
                         selectedKey: MusicTheory.circleOfFifths.first,
                       ),
                     ),
@@ -246,7 +225,7 @@ class PracticeHubScreen extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          // TODO: 实现随机挑战
+                          _startRandomChallenge(context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFFB020),
@@ -273,6 +252,183 @@ class PracticeHubScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _startRandomChallenge(BuildContext context) {
+    final random = math.Random();
+    
+    // 定义挑战类型和描述
+    final challenges = [
+      {
+        'type': 'note_identification',
+        'title': '音符识别挑战',
+        'description': '快速识别指板上的音符',
+        'icon': Icons.music_note,
+        'color': const Color(0xFFEF4444),
+      },
+      {
+        'type': 'scale_practice',
+        'title': '音阶练习挑战',
+        'description': '掌握音阶的指法和位置',
+        'icon': Icons.piano,
+        'color': const Color(0xFF3B82F6),
+      },
+      {
+        'type': 'fretboard_training',
+        'title': '指板训练挑战',
+        'description': '全面训练指板知识',
+        'icon': Icons.grid_4x4,
+        'color': const Color(0xFF10B981),
+      },
+    ];
+    
+    final selectedChallenge = challenges[random.nextInt(challenges.length)];
+    final randomKey = MusicTheory.circleOfFifths[random.nextInt(MusicTheory.circleOfFifths.length)];
+    
+    // 显示挑战预览对话框
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 挑战图标
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: (selectedChallenge['color'] as Color).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  selectedChallenge['icon'] as IconData,
+                  size: 40,
+                  color: selectedChallenge['color'] as Color,
+                ),
+              ),
+              const SizedBox(height: 20),
+              
+              // 挑战标题
+              Text(
+                selectedChallenge['title'] as String,
+                style: GoogleFonts.inter(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1A1A1A),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              
+              // 挑战描述
+              Text(
+                selectedChallenge['description'] as String,
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: const Color(0xFF666666),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              
+              // 调性信息
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: Text(
+                  '挑战调性: ${randomKey.name}',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1A1A1A),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // 按钮
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: const BorderSide(color: Color(0xFFE5E7EB)),
+                        ),
+                      ),
+                      child: Text(
+                        '取消',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF666666),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _launchChallenge(context, selectedChallenge['type'] as String, randomKey);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: selectedChallenge['color'] as Color,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        '开始挑战',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  void _launchChallenge(BuildContext context, String challengeType, MusicKey key) {
+    switch (challengeType) {
+      case 'note_identification':
+      case 'fretboard_training':
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => FretboardTrainerScreen(selectedKey: key),
+          ),
+        );
+        break;
+      case 'scale_practice':
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ScalePracticeScreen(selectedKey: key),
+          ),
+        );
+        break;
+    }
   }
 
   Widget _buildPracticeCard(
@@ -349,168 +505,3 @@ class PracticeHubScreen extends StatelessWidget {
   }
 }
 
-// 指板中心屏幕
-class FretboardHubScreen extends StatelessWidget {
-  const FretboardHubScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '指板工具',
-                style: GoogleFonts.inter(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF1A1A1A),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '可视化学习指板知识',
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  color: const Color(0xFF666666),
-                ),
-              ),
-              const SizedBox(height: 32),
-              
-              // 功能开发中占位
-              Container(
-                padding: const EdgeInsets.all(40),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.construction,
-                        size: 64,
-                        color: const Color(0xFFCCCCCC),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '指板工具开发中',
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF666666),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '即将支持更多指板可视化功能',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: const Color(0xFF999999),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// 进度屏幕
-class ProgressScreen extends StatelessWidget {
-  const ProgressScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '学习进度',
-                style: GoogleFonts.inter(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF1A1A1A),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '跟踪你的学习成果',
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  color: const Color(0xFF666666),
-                ),
-              ),
-              const SizedBox(height: 32),
-              
-              // 功能开发中占位
-              Container(
-                padding: const EdgeInsets.all(40),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.analytics,
-                        size: 64,
-                        color: const Color(0xFFCCCCCC),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '进度统计开发中',
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: const Color(0xFF666666),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '即将支持学习数据分析',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: const Color(0xFF999999),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

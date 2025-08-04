@@ -21,6 +21,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
     with TickerProviderStateMixin {
   late TabController _tabController;
 
+
   @override
   void initState() {
     super.initState();
@@ -43,13 +44,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 30,
-              offset: const Offset(0, 20),
-            ),
-          ],
+          border: Border.all(color: Colors.black, width: 2),
         ),
         child: Column(
           children: [
@@ -82,13 +77,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isMinor 
-              ? [const Color(0xFF2D3748), const Color(0xFF4A5568)]
-              : [const Color(0xFF2C5282), const Color(0xFF3182CE)],
-        ),
+        color: Colors.black,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
@@ -101,9 +90,9 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.3)),
+              border: Border.all(color: Colors.white, width: 2),
             ),
             child: Center(
               child: Text(
@@ -111,7 +100,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                 style: GoogleFonts.inter(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
               ),
             ),
@@ -137,18 +126,11 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                   isMinor ? 'Natural Minor Scale' : 'Major Scale',
                   style: GoogleFonts.inter(
                     fontSize: 16,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    _buildKeySignatureChip('♯${widget.musicKey.sharps}', widget.musicKey.sharps > 0),
-                    const SizedBox(width: 8),
-                    _buildKeySignatureChip('♭${widget.musicKey.flats}', widget.musicKey.flats > 0),
-                  ],
-                ),
+                // Key signature chips removed for cleaner design
               ],
             ),
           ),
@@ -159,12 +141,12 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.close,
-                color: Colors.white,
+                color: Colors.black,
                 size: 20,
               ),
             ),
@@ -179,13 +161,12 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: isActive 
-            ? Colors.white.withOpacity(0.3)
-            : Colors.white.withOpacity(0.1),
+            ? Colors.white
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isActive 
-              ? Colors.white.withOpacity(0.5)
-              : Colors.white.withOpacity(0.2),
+          color: Colors.white,
+          width: 1,
         ),
       ),
       child: Text(
@@ -193,7 +174,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
         style: GoogleFonts.inter(
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          color: Colors.white.withOpacity(isActive ? 1.0 : 0.6),
+          color: isActive ? Colors.black : Colors.white,
         ),
       ),
     );
@@ -201,12 +182,12 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
 
   Widget _buildTabBar() {
     return Container(
-      color: const Color(0xFFF8F9FA),
+      color: Colors.white,
       child: TabBar(
         controller: _tabController,
-        indicatorColor: const Color(0xFF2C5282),
-        labelColor: const Color(0xFF2C5282),
-        unselectedLabelColor: const Color(0xFF666666),
+        indicatorColor: Colors.black,
+        labelColor: Colors.black,
+        unselectedLabelColor: Colors.black,
         labelStyle: GoogleFonts.inter(
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -265,7 +246,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
           style: GoogleFonts.inter(
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1A1A1A),
+            color: Colors.black,
           ),
         ),
         const SizedBox(height: 4),
@@ -273,7 +254,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
           subtitle,
           style: GoogleFonts.inter(
             fontSize: 14,
-            color: const Color(0xFF666666),
+            color: Colors.black,
           ),
         ),
       ],
@@ -294,14 +275,8 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E5E5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Colors.black),
+
       ),
       child: Column(
         children: [
@@ -320,10 +295,10 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: isRoot ? const Color(0xFF2C5282) : const Color(0xFFF8F9FA),
+                      color: isRoot ? Colors.black : Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isRoot ? const Color(0xFF2C5282) : const Color(0xFFE5E5E5),
+                        color: isRoot ? Colors.black : Colors.black,
                         width: 2,
                       ),
                     ),
@@ -333,7 +308,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                         style: GoogleFonts.inter(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: isRoot ? Colors.white : const Color(0xFF1A1A1A),
+                          color: isRoot ? Colors.white : Colors.black,
                         ),
                       ),
                     ),
@@ -344,7 +319,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                     style: GoogleFonts.inter(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF666666),
+                      color: Colors.black,
                     ),
                   ),
                 ],
@@ -363,7 +338,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8F9FA),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
@@ -372,7 +347,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2C5282),
+                      color: Colors.black,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -396,14 +371,14 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1A1A1A),
+                            color: Colors.black,
                           ),
                         ),
                         Text(
                           degreeNames[index],
                           style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: const Color(0xFF666666),
+                            color: Colors.black,
                           ),
                         ),
                       ],
@@ -420,7 +395,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF2C5282),
+                        color: Colors.black,
                       ),
                     ),
                   ),
@@ -440,7 +415,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E5E5)),
+        border: Border.all(color: Colors.black),
       ),
       child: Column(
         children: [
@@ -449,7 +424,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
             style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF1A1A1A),
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 16),
@@ -457,7 +432,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
             '这是${widget.musicKey.name.contains('m') || widget.musicKey.name.contains('小调') ? '自然小调' : '自然大调'}的标准音程排列',
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: const Color(0xFF666666),
+              color: Colors.black,
             ),
           ),
         ],
@@ -471,7 +446,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E5E5)),
+        border: Border.all(color: Colors.black),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,7 +468,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: const Color(0xFF2C5282),
+            color: Colors.black,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Center(
@@ -517,14 +492,14 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1A1A1A),
+                  color: Colors.black,
                 ),
               ),
               Text(
                 description,
                 style: GoogleFonts.inter(
                   fontSize: 12,
-                  color: const Color(0xFF666666),
+                  color: Colors.black,
                 ),
               ),
             ],
@@ -545,32 +520,73 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
           _buildSectionHeader('指板音阶图谱', '在吉他指板上显示音阶位置'),
           const SizedBox(height: 16),
           
+
+          
           Container(
-            height: 400,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE5E5E5)),
+              border: Border.all(color: Colors.black),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.transparent,
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: FretboardWidget(
-                highlightScale: widget.musicKey.note,
-                scaleType: widget.musicKey.name.contains('m') || widget.musicKey.name.contains('小调') 
-                    ? 'minor' 
-                    : 'major',
-                startFret: 0,
-                endFret: 12,
-                showNotes: true,
-                showIntervals: true,
-              ),
+            child: Column(
+              children: [
+                Container(
+                  height: 280, // 调整高度以适应紧凑的指板设计
+                  padding: const EdgeInsets.all(16),
+                  child: FretboardWidget(
+                    highlightScale: widget.musicKey.note,
+                    scaleType: widget.musicKey.name.contains('m') || widget.musicKey.name.contains('小调') 
+                        ? 'minor' 
+                        : 'major',
+                    startFret: 0,
+                    endFret: 12,
+                    showNotes: true,
+                    showIntervals: true,
+                  ),
+                ),
+                
+                // 全屏查看按钮
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: GestureDetector(
+                    onTap: () => _showFullScreenScaleFretboard(),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.fullscreen,
+                          size: 18,
+                          color: Colors.black,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '横屏查看完整音阶指板图谱',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -584,19 +600,62 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
     final rootNote = widget.musicKey.note;
     final cagedChords = CAGEDSystem.getCAGEDChords(rootNote);
     
+    // 判断是大调还是小调
+    final isMinor = widget.musicKey.name.contains('m') || widget.musicKey.name.contains('小调');
+    final chordNotes = isMinor 
+        ? (MusicTheory.minorChordNotes[rootNote] ?? [])
+        : (MusicTheory.majorChordNotes[rootNote] ?? []);
+    
+    final chordTypeName = isMinor ? '小调和弦' : '大调和弦';
+    
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('CAGED系统', '五种基本和弦形状在指板上的所有按法'),
+          _buildSectionHeader('CAGED系统', '${rootNote}${chordTypeName}的所有指板排列'),
+          const SizedBox(height: 16),
+          
+          // 和弦组成音说明
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.black),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${rootNote}${chordTypeName}组成音',
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 10), // 减小间距
+                Wrap(
+                  spacing: 8, // 减小间距
+                  runSpacing: 8,
+                  children: [
+                    _buildChordNoteChip(chordNotes.isNotEmpty ? chordNotes[0] : '', '根音', Colors.black),
+                    _buildChordNoteChip(chordNotes.length > 1 ? chordNotes[1] : '', '三度音', Colors.black),
+                    _buildChordNoteChip(chordNotes.length > 2 ? chordNotes[2] : '', '五度音', Colors.black),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          
           const SizedBox(height: 16),
           
           Text(
-            'CAGED系统基于C、A、G、E、D这五个开放和弦的形状，通过移调在整个指板上演奏${widget.musicKey.name}和弦',
+            'CAGED系统基于C、A、G、E、D这五个开放和弦的形状，通过移调在整个指板上演奏${widget.musicKey.name}和弦。每种形状展示了和弦在不同把位的排列。',
             style: GoogleFonts.inter(
               fontSize: 14,
-              color: const Color(0xFF666666),
+              color: Colors.black,
               height: 1.5,
             ),
           ),
@@ -616,7 +675,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE5E5E5)),
+        border: Border.all(color: Colors.black),
       ),
       child: Column(
         children: [
@@ -626,7 +685,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF2C5282),
+              color: Colors.black,
             ),
           ),
           
@@ -654,14 +713,8 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E5E5)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Colors.black),
+
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -672,7 +725,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF2C5282),
+                  color: Colors.black,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -691,7 +744,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1A1A1A),
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -701,9 +754,9 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8F9FA),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFE5E5E5)),
+                    border: Border.all(color: Colors.black),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -711,7 +764,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                       const Icon(
                         Icons.fullscreen,
                         size: 16,
-                        color: Color(0xFF2C5282),
+                        color: Colors.black,
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -719,7 +772,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                         style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF2C5282),
+                          color: Colors.black,
                         ),
                       ),
                     ],
@@ -735,7 +788,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
             chord.description,
             style: GoogleFonts.inter(
               fontSize: 12,
-              color: const Color(0xFF666666),
+              color: Colors.black,
             ),
           ),
           
@@ -743,17 +796,58 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
           
           // 简化的指板预览图
           Container(
-            height: 120,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE5E5E5)),
+              border: Border.all(color: Colors.black),
             ),
-            child: FretboardWidget(
-              cagedChord: chord,
-              startFret: (chord.baseFret - 1).clamp(0, 12),
-              endFret: (chord.baseFret + 3).clamp(3, 15),
-              showNotes: false,
-              showIntervals: false,
+            child: Column(
+              children: [
+                Container(
+                  height: 250, // 紧凑的高度以适应带有品号弦号标注的指板
+                  child: FretboardWidget(
+                    cagedChord: chord,
+                    startFret: (chord.baseFret - 2).clamp(0, 12),
+                    endFret: (chord.baseFret + 4).clamp(4, 15),
+                    showNotes: true,
+                    showIntervals: false,
+                  ),
+                ),
+                
+                // 全屏查看按钮
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
+                    ),
+                  ),
+                  child: GestureDetector(
+                    onTap: () => _showFullScreenFretboard(chord),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.fullscreen,
+                          size: 16,
+                          color: Colors.black,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '横屏查看完整指板',
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           
@@ -770,7 +864,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -781,7 +875,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF1A1A1A),
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 12),
@@ -790,9 +884,9 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
             spacing: 16,
             runSpacing: 8,
             children: [
-              _buildLegendItem('R', '根音', const Color(0xFF2C5282)),
-              _buildLegendItem('3', '三度音', const Color(0xFF38A169)),
-              _buildLegendItem('5', '五度音', const Color(0xFFD69E2E)),
+              _buildLegendItem('R', '根音', Colors.black),
+              _buildLegendItem('3', '三度音', Colors.black),
+              _buildLegendItem('5', '五度音', Colors.black),
             ],
           ),
         ],
@@ -828,10 +922,53 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
           description,
           style: GoogleFonts.inter(
             fontSize: 12,
-            color: const Color(0xFF666666),
+            color: Colors.black,
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildChordNoteChip(String note, String description, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6), // 减小padding
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10), // 稍微减小圆角
+        border: Border.all(color: Colors.black, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 20, // 减小圆形容器尺寸
+            height: 20,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Text(
+                note,
+                style: GoogleFonts.inter(
+                  fontSize: 11, // 减小字体
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 6), // 减小间距
+          Text(
+            description,
+            style: GoogleFonts.inter(
+              fontSize: 12, // 减小描述文字字体
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -849,7 +986,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.white,
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -865,8 +1002,8 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      const Color(0xFF2C5282),
-                      const Color(0xFF3182CE),
+                      Colors.black,
+                      Colors.black,
                     ],
                   ),
                   borderRadius: const BorderRadius.only(
@@ -893,7 +1030,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                             '完整指板视图 - 第${chord.baseFret}品位置',
                             style: GoogleFonts.inter(
                               fontSize: 14,
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white,
                             ),
                           ),
                         ],
@@ -904,7 +1041,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(
@@ -928,7 +1065,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFE5E5E5)),
+                            border: Border.all(color: Colors.black),
                           ),
                           child: FretboardWidget(
                             cagedChord: chord,
@@ -959,7 +1096,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -970,7 +1107,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
             style: GoogleFonts.inter(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF1A1A1A),
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 12),
@@ -985,14 +1122,14 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFE5E5E5)),
+                  border: Border.all(color: Colors.black),
                 ),
                 child: Text(
                   '${pos.string}弦-${pos.fret}品',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1A1A1A),
+                    color: Colors.black,
                   ),
                 ),
               );
@@ -1002,13 +1139,13 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
           const SizedBox(height: 12),
           
           // 颜色说明
-          Row(
+          Wrap(
+            spacing: 16,
+            runSpacing: 8,
             children: [
-              _buildLegendItem('R', '根音', const Color(0xFF2C5282)),
-              const SizedBox(width: 16),
-              _buildLegendItem('3', '三度音', const Color(0xFF38A169)),
-              const SizedBox(width: 16),
-              _buildLegendItem('5', '五度音', const Color(0xFFD69E2E)),
+              _buildLegendItem('R', '根音', Colors.black),
+              _buildLegendItem('3', '三度音', Colors.black),
+              _buildLegendItem('5', '五度音', Colors.black),
             ],
           ),
         ],
@@ -1016,7 +1153,192 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
     );
   }
 
+  // 显示全屏CAGED指板图谱
+  void _showFullScreenFretboard(CAGEDChord chord) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => FullScreenFretboardView(
+          title: '${chord.name} - ${widget.musicKey.name}和弦',
+          cagedChord: chord,
+        ),
+      ),
+    );
+  }
 
+  // 显示全屏音阶指板图谱
+  void _showFullScreenScaleFretboard() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => FullScreenFretboardView(
+          title: '${widget.musicKey.name}音阶指板图谱',
+          highlightScale: widget.musicKey.note,
+          scaleType: widget.musicKey.name.contains('m') || widget.musicKey.name.contains('小调') 
+              ? 'minor' 
+              : 'major',
+        ),
+      ),
+    );
+  }
+}
 
+// 全屏指板视图
+class FullScreenFretboardView extends StatelessWidget {
+  final String title;
+  final CAGEDChord? cagedChord;
+  final String? highlightScale;
+  final String? scaleType;
+  const FullScreenFretboardView({
+    super.key,
+    required this.title,
+    this.cagedChord,
+    this.highlightScale,
+    this.scaleType,
+  });
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          title,
+          style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                // 提示文字
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    orientation == Orientation.portrait 
+                        ? '💡 旋转手机到横屏模式获得更好的查看体验'
+                        : '🎸 横屏模式 - 完整指板图谱',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // 指板图谱
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: FretboardWidget(
+                      cagedChord: cagedChord,
+                      highlightScale: highlightScale,
+                      scaleType: scaleType ?? 'major',
+                      startFret: 0,
+                      endFret: 15, // 显示更多品格
+                      showNotes: true,
+                      showIntervals: false,
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // 图例说明
+                if (cagedChord != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '指法说明',
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 16,
+                          runSpacing: 8,
+                          children: [
+                            _buildWhiteLegendItem('R', '根音', Colors.black),
+                            _buildWhiteLegendItem('3', '三度音', Colors.black),
+                            _buildWhiteLegendItem('5', '五度音', Colors.black),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildWhiteLegendItem(String symbol, String description, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white, width: 2),
+          ),
+          child: Center(
+            child: Text(
+              symbol,
+              style: GoogleFonts.inter(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          description,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
 }

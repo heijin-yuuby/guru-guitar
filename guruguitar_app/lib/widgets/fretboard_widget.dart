@@ -11,6 +11,7 @@ class FretboardWidget extends StatefulWidget {
   final int endFret; // 结束品格
   final bool showNotes; // 显示音符名称
   final bool showIntervals; // 显示音程
+
   final Function(FretPosition)? onFretTap; // 点击品格回调
 
   const FretboardWidget({
@@ -23,6 +24,7 @@ class FretboardWidget extends StatefulWidget {
     this.endFret = 12,
     this.showNotes = true,
     this.showIntervals = false,
+
     this.onFretTap,
   });
 
@@ -34,11 +36,30 @@ class _FretboardWidgetState extends State<FretboardWidget> {
   List<FretPosition> highlightedPositions = [];
   List<FretPosition> chordPositions = [];
   List<CAGEDPosition> cagedPositions = [];
+  
+  // 同步滚动控制器
+  late ScrollController _fretboardScrollController;
+  late ScrollController _fretNumberScrollController;
+  bool _isSyncing = false;
 
   @override
   void initState() {
     super.initState();
+    _fretboardScrollController = ScrollController();
+    _fretNumberScrollController = ScrollController();
+    
+    // 设置同步滚动
+    _fretboardScrollController.addListener(_syncScrolling);
+    _fretNumberScrollController.addListener(_syncScrolling);
+    
     _updateHighlights();
+  }
+
+  @override
+  void dispose() {
+    _fretboardScrollController.dispose();
+    _fretNumberScrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -55,6 +76,7 @@ class _FretboardWidgetState extends State<FretboardWidget> {
   void _updateHighlights() {
     highlightedPositions.clear();
     chordPositions.clear();
+    cagedPositions.clear();
 
     // 更新音阶高亮
     if (widget.highlightScale != null) {
@@ -75,28 +97,192 @@ class _FretboardWidgetState extends State<FretboardWidget> {
       }
     }
 
+    // 更新CAGED和弦高亮
+    if (widget.cagedChord != null) {
+      cagedPositions = widget.cagedChord!.positions.where(
+        (pos) => pos.fret >= widget.startFret && pos.fret <= widget.endFret,
+      ).toList();
+    }
+
     setState(() {});
+  }
+  
+  void _syncScrolling() {
+    if (_isSyncing) return;
+    
+    _isSyncing = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _fretboardScrollController.hasClients && _fretNumberScrollController.hasClients) {
+        final fretboardOffset = _fretboardScrollController.offset;
+        final fretNumberOffset = _fretNumberScrollController.offset;
+        
+        if ((fretboardOffset - fretNumberOffset).abs() > 1.0) {
+          _fretNumberScrollController.jumpTo(fretboardOffset);
+        }
+      }
+      _isSyncing = false;
+    });
+  }
+
+  FretPosition? _getFretPositionFromTap(Offset tapPosition, double fretWidth) {
+    final stringSpacing = 180.0 / 7; // 与绘制时保持一致，使用新的高度
+    
+    // 计算点击的品格
+    final fretIndex = (tapPosition.dx / fretWidth).floor();
+    final fret = widget.startFret + fretIndex;
+    
+    // 计算点击的弦
+    final stringNumber = (tapPosition.dy / stringSpacing).round();
+    
+    // 验证点击位置是否有效
+    if (fret < widget.startFret || fret > widget.endFret || 
+        stringNumber < 1 || stringNumber > 6) {
+      return null;
+    }
+    
+    // 获取该位置的音符
+    final note = GuitarData.getNoteAtFret(stringNumber, fret);
+    
+    return FretPosition(
+      stringNumber: stringNumber,
+      fret: fret,
+      note: note,
+      interval: '', // 暂时为空，可以根据需要计算
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final fretCount = widget.endFret - widget.startFret + 1;
+    final fretWidth = 80.0; // 每个品格固定宽度
+    final fretboardWidth = fretCount * fretWidth;
+    final totalWidth = fretboardWidth + 60; // 总宽度 + 弦号标注空间
+    
     return Container(
-      padding: const EdgeInsets.all(16),
-      child: CustomPaint(
-        size: Size(
-          MediaQuery.of(context).size.width - 32,
-          300, // 固定高度
-        ),
-                    painter: FretboardPainter(
-              startFret: widget.startFret,
-              endFret: widget.endFret,
-              highlightedPositions: highlightedPositions,
-              chordPositions: chordPositions,
-              cagedPositions: cagedPositions,
-              showNotes: widget.showNotes,
-              showIntervals: widget.showIntervals,
-              onFretTap: widget.onFretTap,
+      padding: const EdgeInsets.symmetric(vertical: 8), // 减少垂直padding
+      child: Column(
+        mainAxisSize: MainAxisSize.min, // 使用最小尺寸
+        children: [
+          // 弦号标注和指板图的行
+          Container(
+            height: 180, // 减少高度以避免溢出
+            child: Row(
+              children: [
+                // 弦号标注（固定）
+                Container(
+                  width: 50,
+                  height: 180,
+                  child: _buildStringNumbers(),
+                ),
+                // 指板图（可水平滚动）
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _fretboardScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      width: fretboardWidth,
+                      height: 180,
+                      child: GestureDetector(
+                        onTapDown: (details) {
+                          if (widget.onFretTap != null) {
+                            final position = _getFretPositionFromTap(details.localPosition, fretWidth);
+                            if (position != null) {
+                              widget.onFretTap!(position);
+                            }
+                          }
+                        },
+                        child: CustomPaint(
+                          size: Size(fretboardWidth, 180),
+                          painter: FretboardPainter(
+                            startFret: widget.startFret,
+                            endFret: widget.endFret,
+                            highlightedPositions: highlightedPositions,
+                            chordPositions: chordPositions,
+                            cagedPositions: cagedPositions,
+                            showNotes: widget.showNotes,
+                            showIntervals: widget.showIntervals,
+                            onFretTap: widget.onFretTap,
+                            fretWidth: fretWidth,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ),
+          
+          // 品号标注
+          Container(
+            height: 30, // 减少高度
+            child: Row(
+              children: [
+                // 对齐弦号标注的空间
+                const SizedBox(width: 50),
+                // 品号标注（可水平滚动）
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _fretNumberScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      width: fretboardWidth,
+                      child: _buildFretNumbers(fretWidth),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 构建弦号标注
+  Widget _buildStringNumbers() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (int i = 1; i <= 6; i++)
+          Expanded(
+            child: Center(
+              child: Text(
+                '${i}弦',
+                style: const TextStyle(
+                  fontSize: 11, // 稍微减小字体
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF666666),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  // 构建品号标注
+  Widget _buildFretNumbers(double fretWidth) {
+    return Container(
+      height: 30, // 减少高度
+      child: Row(
+        children: [
+          for (int fret = widget.startFret; fret <= widget.endFret; fret++)
+            Container(
+              width: fretWidth,
+              height: 30, // 减少高度
+              child: Center(
+                child: Text(
+                  '${fret}品',
+                  style: const TextStyle(
+                    fontSize: 11, // 稍微减小字体
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF666666),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -110,7 +296,9 @@ class FretboardPainter extends CustomPainter {
   final List<CAGEDPosition> cagedPositions;
   final bool showNotes;
   final bool showIntervals;
+
   final Function(FretPosition)? onFretTap;
+  final double fretWidth;
 
   FretboardPainter({
     required this.startFret,
@@ -120,32 +308,33 @@ class FretboardPainter extends CustomPainter {
     required this.cagedPositions,
     required this.showNotes,
     required this.showIntervals,
+
     this.onFretTap,
+    required this.fretWidth,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final fretCount = endFret - startFret + 1;
-    final fretHeight = size.height / fretCount; // 竖向：品格是垂直分布
-    final stringSpacing = size.width / 7; // 竖向：6根弦横向分布
+    final stringSpacing = size.height / 7; // 横向：6根弦纵向分布
 
     // 绘制指板背景
     _drawFretboardBackground(canvas, size);
 
-    // 绘制品丝（横线）
-    _drawFrets(canvas, size, fretHeight, fretCount);
+    // 绘制品丝（竖线）
+    _drawFrets(canvas, size, fretWidth, fretCount);
 
-    // 绘制琴弦（竖线）
+    // 绘制琴弦（横线）
     _drawStrings(canvas, size, stringSpacing);
 
     // 绘制品格标记 (3, 5, 7, 9, 12品等)
-    _drawFretMarkers(canvas, size, fretHeight, stringSpacing);
+    _drawFretMarkers(canvas, size, fretWidth, stringSpacing);
 
     // 绘制品格数字
-    _drawFretNumbers(canvas, size, fretHeight);
+    _drawFretNumbers(canvas, size, fretWidth);
 
     // 绘制音符/和弦位置
-    _drawPositions(canvas, size, fretHeight, stringSpacing);
+    _drawPositions(canvas, size, fretWidth, stringSpacing);
   }
 
   void _drawFretboardBackground(Canvas canvas, Size size) {
@@ -177,18 +366,18 @@ class FretboardPainter extends CustomPainter {
     );
   }
 
-  void _drawFrets(Canvas canvas, Size size, double fretHeight, int fretCount) {
+  void _drawFrets(Canvas canvas, Size size, double fretWidth, int fretCount) {
     final fretPaint = Paint()
       ..color = const Color(0xFFCDCDCD) // 银色品丝
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
-    // 竖向布局：品丝是横线
+    // 横向布局：品丝是竖线
     for (int i = 0; i <= fretCount; i++) {
-      final y = i * fretHeight;
+      final x = i * fretWidth;
       canvas.drawLine(
-        Offset(0, y),
-        Offset(size.width, y),
+        Offset(x, 0),
+        Offset(x, size.height),
         fretPaint,
       );
     }
@@ -199,22 +388,21 @@ class FretboardPainter extends CustomPainter {
       ..color = const Color(0xFF808080)
       ..style = PaintingStyle.stroke;
 
-    // 竖向布局：琴弦是竖线，从6弦到1弦（从左到右）
+    // 横向布局：琴弦是横线，从1弦到6弦（从上到下）
     for (int i = 1; i <= 6; i++) {
-      final x = i * stringSpacing;
-      // 不同弦粗细不同（6弦最粗，1弦最细）
-      final stringIndex = 7 - i; // 反转弦号，6弦在左，1弦在右
-      stringPaint.strokeWidth = stringIndex <= 2 ? 1.0 : (stringIndex <= 4 ? 1.5 : 2.0);
+      final y = i * stringSpacing;
+      // 不同弦粗细不同（1弦最细，6弦最粗）
+      stringPaint.strokeWidth = i <= 2 ? 1.0 : (i <= 4 ? 1.5 : 2.0);
       
       canvas.drawLine(
-        Offset(x, 0),
-        Offset(x, size.height),
+        Offset(0, y),
+        Offset(size.width, y),
         stringPaint,
       );
     }
   }
 
-  void _drawFretMarkers(Canvas canvas, Size size, double fretHeight, double stringSpacing) {
+  void _drawFretMarkers(Canvas canvas, Size size, double fretWidth, double stringSpacing) {
     final markerPaint = Paint()
       ..color = const Color(0xFFFFFFFF).withOpacity(0.3)
       ..style = PaintingStyle.fill;
@@ -224,8 +412,8 @@ class FretboardPainter extends CustomPainter {
 
     for (int fret = startFret; fret <= endFret; fret++) {
       final fretIndex = fret - startFret;
-      final centerY = fretIndex * fretHeight + fretHeight / 2;
-      final centerX = size.width / 2;
+      final centerX = fretIndex * fretWidth + fretWidth / 2;
+      final centerY = size.height / 2;
 
       if (markerFrets.contains(fret)) {
         // 单点标记
@@ -237,12 +425,12 @@ class FretboardPainter extends CustomPainter {
       } else if (doubleMarkerFrets.contains(fret)) {
         // 双点标记
         canvas.drawCircle(
-          Offset(centerX - 20, centerY),
+          Offset(centerX, centerY - 20),
           8,
           markerPaint,
         );
         canvas.drawCircle(
-          Offset(centerX + 20, centerY),
+          Offset(centerX, centerY + 20),
           8,
           markerPaint,
         );
@@ -250,19 +438,19 @@ class FretboardPainter extends CustomPainter {
     }
   }
 
-  void _drawFretNumbers(Canvas canvas, Size size, double fretHeight) {
+  void _drawFretNumbers(Canvas canvas, Size size, double fretWidth) {
     final textStyle = TextStyle(
       color: const Color(0xFF666666),
-      fontSize: 12,
-      fontWeight: FontWeight.w500,
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
     );
 
-    // 竖向布局：品格数字显示在左侧
+    // 横向布局：品格数字显示在底部
     for (int fret = startFret; fret <= endFret; fret++) {
       if (fret == 0) continue; // 不显示0品
       
       final fretIndex = fret - startFret;
-      final centerY = fretIndex * fretHeight + fretHeight / 2;
+      final centerX = fretIndex * fretWidth + fretWidth / 2;
 
       final textPainter = TextPainter(
         text: TextSpan(text: fret.toString(), style: textStyle),
@@ -273,29 +461,29 @@ class FretboardPainter extends CustomPainter {
       textPainter.paint(
         canvas,
         Offset(
-          -textPainter.width - 5,
-          centerY - textPainter.height / 2,
+          centerX - textPainter.width / 2,
+          size.height + 8,
         ),
       );
     }
   }
 
-  void _drawPositions(Canvas canvas, Size size, double fretHeight, double stringSpacing) {
+  void _drawPositions(Canvas canvas, Size size, double fretWidth, double stringSpacing) {
     // 绘制音阶位置
     for (final position in highlightedPositions) {
-      _drawPosition(canvas, size, position, fretHeight, stringSpacing, 
+      _drawPosition(canvas, size, position, fretWidth, stringSpacing, 
         const Color(0xFF3B82F6), false);
     }
 
     // 绘制和弦位置
     for (final position in chordPositions) {
-      _drawPosition(canvas, size, position, fretHeight, stringSpacing, 
+      _drawPosition(canvas, size, position, fretWidth, stringSpacing, 
         const Color(0xFFEF4444), true);
     }
     
     // 绘制CAGED和弦位置
     for (final position in cagedPositions) {
-      _drawCAGEDPosition(canvas, size, position, fretHeight, stringSpacing);
+      _drawCAGEDPosition(canvas, size, position, fretWidth, stringSpacing);
     }
   }
 
@@ -303,7 +491,7 @@ class FretboardPainter extends CustomPainter {
     Canvas canvas,
     Size size,
     FretPosition position,
-    double fretHeight,
+    double fretWidth,
     double stringSpacing,
     Color color,
     bool isChord,
@@ -311,8 +499,8 @@ class FretboardPainter extends CustomPainter {
     if (position.fret < startFret || position.fret > endFret) return;
 
     final fretIndex = position.fret - startFret;
-    final y = fretIndex * fretHeight + fretHeight / 2;
-    final x = position.stringNumber * stringSpacing;
+    final x = fretIndex * fretWidth + fretWidth / 2;
+    final y = position.stringNumber * stringSpacing;
 
     // 绘制圆圈
     final circlePaint = Paint()
@@ -324,7 +512,7 @@ class FretboardPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
 
-    final radius = isChord ? 12.0 : 10.0;
+    final radius = isChord ? 15.0 : 12.0;
     
     canvas.drawCircle(Offset(x, y), radius, circlePaint);
     canvas.drawCircle(Offset(x, y), radius, borderPaint);
@@ -337,8 +525,8 @@ class FretboardPainter extends CustomPainter {
       
       final textStyle = TextStyle(
         color: Colors.white,
-        fontSize: 10,
-        fontWeight: FontWeight.w600,
+        fontSize: 12,
+        fontWeight: FontWeight.w700,
       );
 
       final textPainter = TextPainter(
@@ -373,14 +561,14 @@ class FretboardPainter extends CustomPainter {
     Canvas canvas,
     Size size,
     CAGEDPosition position,
-    double fretHeight,
+    double fretWidth,
     double stringSpacing,
   ) {
     if (position.fret < startFret || position.fret > endFret) return;
 
     final fretIndex = position.fret - startFret;
-    final y = fretIndex * fretHeight + fretHeight / 2;
-    final x = position.string * stringSpacing;
+    final x = fretIndex * fretWidth + fretWidth / 2;
+    final y = position.string * stringSpacing;
 
     final color = CAGEDSystem.getFingerTypeColor(position.type);
     final text = CAGEDSystem.getFingerTypeText(position.type);
@@ -399,7 +587,7 @@ class FretboardPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.5;
 
-    final radius = position.isRoot ? 16.0 : 14.0;
+    final radius = position.isRoot ? 18.0 : 16.0;
     
     canvas.drawCircle(Offset(x, y), radius, circlePaint);
     canvas.drawCircle(Offset(x, y), radius, borderPaint);
@@ -416,7 +604,7 @@ class FretboardPainter extends CustomPainter {
     // 绘制文字
     final textStyle = TextStyle(
       color: Colors.white.withOpacity(opacity),
-      fontSize: 12,
+      fontSize: 14,
       fontWeight: FontWeight.w800,
     );
 

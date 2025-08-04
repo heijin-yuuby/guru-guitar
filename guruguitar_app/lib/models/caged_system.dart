@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'music_theory.dart';
 
 class CAGEDChord {
   final String name; // C, A, G, E, D
@@ -42,9 +43,7 @@ enum CAGEDFingerType {
 class CAGEDSystem {
   // 获取指定调的所有CAGED和弦形状
   static List<CAGEDChord> getCAGEDChords(String rootNote) {
-    // 十二平均律
-    final notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    final rootIndex = notes.indexOf(rootNote);
+    final rootIndex = _getNoteIndex(rootNote);
     if (rootIndex == -1) return [];
 
     // 计算各种CAGED形状在指板上的位置
@@ -57,17 +56,40 @@ class CAGEDSystem {
     ];
   }
 
+  // 获取音符在半音阶中的索引（考虑升降号）
+  static int _getNoteIndex(String note) {
+    final notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    
+    // 处理升号
+    if (note.contains('#')) {
+      final baseName = note.substring(0, 1);
+      final baseIndex = notes.indexOf(baseName);
+      return (baseIndex + 1) % 12;
+    }
+    
+    // 处理降号
+    if (note.contains('b')) {
+      final baseName = note.substring(0, 1);
+      final baseIndex = notes.indexOf(baseName);
+      return (baseIndex - 1 + 12) % 12;
+    }
+    
+    // 普通音符
+    return notes.indexOf(note);
+  }
+
   // C形状和弦 - 全指板位置
   static CAGEDChord _getCShape(String rootNote, int rootIndex) {
     List<CAGEDPosition> allPositions = [];
+    final chordNotes = MusicTheory.majorChordNotes[rootNote] ?? [];
     
     // C形状的相对位置模式 (相对于根音位置)
     List<Map<String, dynamic>> pattern = [
-      {'string': 5, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': true},
-      {'string': 4, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false},
-      {'string': 3, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false},
-      {'string': 2, 'fretOffset': 1, 'type': CAGEDFingerType.third, 'isRoot': false},
-      {'string': 1, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false},
+      {'string': 5, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': true, 'noteIndex': 0},
+      {'string': 4, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false, 'noteIndex': 2},
+      {'string': 3, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false, 'noteIndex': 0},
+      {'string': 2, 'fretOffset': 1, 'type': CAGEDFingerType.third, 'isRoot': false, 'noteIndex': 1},
+      {'string': 1, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false, 'noteIndex': 0},
     ];
     
     // 计算在整个指板上的所有位置 (0-15品)
@@ -78,10 +100,14 @@ class CAGEDSystem {
         for (var pos in pattern) {
           int actualFret = baseFret + (pos['fretOffset'] as int);
           if (actualFret >= 0 && actualFret <= 15) {
+            final noteIndex = pos['noteIndex'] as int;
+            final noteName = chordNotes.length > noteIndex ? chordNotes[noteIndex] : '';
+            
             allPositions.add(CAGEDPosition(
               string: pos['string'] as int,
               fret: actualFret,
               type: pos['type'] as CAGEDFingerType,
+              note: noteName,
               isRoot: pos['isRoot'] as bool,
             ));
           }
@@ -92,7 +118,7 @@ class CAGEDSystem {
     return CAGEDChord(
       name: 'C形状',
       description: '基于C和弦的指型，全指板位置',
-      baseFret: 0, // 不再使用单一基准品格
+      baseFret: allPositions.isNotEmpty ? allPositions.first.fret : 0,
       positions: allPositions,
     );
   }
@@ -100,14 +126,15 @@ class CAGEDSystem {
   // A形状和弦 - 全指板位置
   static CAGEDChord _getAShape(String rootNote, int rootIndex) {
     List<CAGEDPosition> allPositions = [];
+    final chordNotes = MusicTheory.majorChordNotes[rootNote] ?? [];
     
     // A形状的相对位置模式 (横按指型)
     List<Map<String, dynamic>> pattern = [
-      {'string': 5, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': true},
-      {'string': 4, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false},
-      {'string': 3, 'fretOffset': 2, 'type': CAGEDFingerType.third, 'isRoot': false},
-      {'string': 2, 'fretOffset': 2, 'type': CAGEDFingerType.root, 'isRoot': false},
-      {'string': 1, 'fretOffset': 0, 'type': CAGEDFingerType.fifth, 'isRoot': false},
+      {'string': 5, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': true, 'noteIndex': 0},
+      {'string': 4, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false, 'noteIndex': 2},
+      {'string': 3, 'fretOffset': 2, 'type': CAGEDFingerType.third, 'isRoot': false, 'noteIndex': 1},
+      {'string': 2, 'fretOffset': 2, 'type': CAGEDFingerType.root, 'isRoot': false, 'noteIndex': 0},
+      {'string': 1, 'fretOffset': 0, 'type': CAGEDFingerType.fifth, 'isRoot': false, 'noteIndex': 2},
     ];
     
     // 计算在整个指板上的所有位置
@@ -118,10 +145,14 @@ class CAGEDSystem {
         for (var pos in pattern) {
           int actualFret = baseFret + (pos['fretOffset'] as int);
           if (actualFret >= 0 && actualFret <= 15) {
+            final noteIndex = pos['noteIndex'] as int;
+            final noteName = chordNotes.length > noteIndex ? chordNotes[noteIndex] : '';
+            
             allPositions.add(CAGEDPosition(
               string: pos['string'] as int,
               fret: actualFret,
               type: pos['type'] as CAGEDFingerType,
+              note: noteName,
               isRoot: pos['isRoot'] as bool,
             ));
           }
@@ -132,7 +163,7 @@ class CAGEDSystem {
     return CAGEDChord(
       name: 'A形状',
       description: '基于A和弦的横按指型，全指板位置',
-      baseFret: 0,
+      baseFret: allPositions.isNotEmpty ? allPositions.first.fret : 0,
       positions: allPositions,
     );
   }
@@ -140,14 +171,15 @@ class CAGEDSystem {
   // G形状和弦 - 全指板位置
   static CAGEDChord _getGShape(String rootNote, int rootIndex) {
     List<CAGEDPosition> allPositions = [];
+    final chordNotes = MusicTheory.majorChordNotes[rootNote] ?? [];
     
     // G形状的相对位置模式
     List<Map<String, dynamic>> pattern = [
-      {'string': 6, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': true},
-      {'string': 5, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false},
-      {'string': 4, 'fretOffset': 0, 'type': CAGEDFingerType.third, 'isRoot': false},
-      {'string': 3, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false},
-      {'string': 1, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': false},
+      {'string': 6, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': true, 'noteIndex': 0},
+      {'string': 5, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false, 'noteIndex': 2},
+      {'string': 4, 'fretOffset': 0, 'type': CAGEDFingerType.third, 'isRoot': false, 'noteIndex': 1},
+      {'string': 3, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false, 'noteIndex': 0},
+      {'string': 1, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': false, 'noteIndex': 0},
     ];
     
     // 计算在整个指板上的所有位置
@@ -158,10 +190,14 @@ class CAGEDSystem {
         for (var pos in pattern) {
           int actualFret = baseFret + (pos['fretOffset'] as int);
           if (actualFret >= 0 && actualFret <= 15) {
+            final noteIndex = pos['noteIndex'] as int;
+            final noteName = chordNotes.length > noteIndex ? chordNotes[noteIndex] : '';
+            
             allPositions.add(CAGEDPosition(
               string: pos['string'] as int,
               fret: actualFret,
               type: pos['type'] as CAGEDFingerType,
+              note: noteName,
               isRoot: pos['isRoot'] as bool,
             ));
           }
@@ -172,7 +208,7 @@ class CAGEDSystem {
     return CAGEDChord(
       name: 'G形状',
       description: '基于G和弦的指型，全指板位置',
-      baseFret: 0,
+      baseFret: allPositions.isNotEmpty ? allPositions.first.fret : 0,
       positions: allPositions,
     );
   }
@@ -180,15 +216,16 @@ class CAGEDSystem {
   // E形状和弦 - 全指板位置
   static CAGEDChord _getEShape(String rootNote, int rootIndex) {
     List<CAGEDPosition> allPositions = [];
+    final chordNotes = MusicTheory.majorChordNotes[rootNote] ?? [];
     
     // E形状的相对位置模式 (横按指型)
     List<Map<String, dynamic>> pattern = [
-      {'string': 6, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': true},
-      {'string': 5, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false},
-      {'string': 4, 'fretOffset': 2, 'type': CAGEDFingerType.root, 'isRoot': false},
-      {'string': 3, 'fretOffset': 1, 'type': CAGEDFingerType.third, 'isRoot': false},
-      {'string': 2, 'fretOffset': 0, 'type': CAGEDFingerType.fifth, 'isRoot': false},
-      {'string': 1, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false},
+      {'string': 6, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': true, 'noteIndex': 0},
+      {'string': 5, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false, 'noteIndex': 2},
+      {'string': 4, 'fretOffset': 2, 'type': CAGEDFingerType.root, 'isRoot': false, 'noteIndex': 0},
+      {'string': 3, 'fretOffset': 1, 'type': CAGEDFingerType.third, 'isRoot': false, 'noteIndex': 1},
+      {'string': 2, 'fretOffset': 0, 'type': CAGEDFingerType.fifth, 'isRoot': false, 'noteIndex': 2},
+      {'string': 1, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': false, 'noteIndex': 0},
     ];
     
     // 计算在整个指板上的所有位置
@@ -199,10 +236,14 @@ class CAGEDSystem {
         for (var pos in pattern) {
           int actualFret = baseFret + (pos['fretOffset'] as int);
           if (actualFret >= 0 && actualFret <= 15) {
+            final noteIndex = pos['noteIndex'] as int;
+            final noteName = chordNotes.length > noteIndex ? chordNotes[noteIndex] : '';
+            
             allPositions.add(CAGEDPosition(
               string: pos['string'] as int,
               fret: actualFret,
               type: pos['type'] as CAGEDFingerType,
+              note: noteName,
               isRoot: pos['isRoot'] as bool,
             ));
           }
@@ -213,7 +254,7 @@ class CAGEDSystem {
     return CAGEDChord(
       name: 'E形状',
       description: '基于E和弦的横按指型，全指板位置',
-      baseFret: 0,
+      baseFret: allPositions.isNotEmpty ? allPositions.first.fret : 0,
       positions: allPositions,
     );
   }
@@ -221,13 +262,14 @@ class CAGEDSystem {
   // D形状和弦 - 全指板位置
   static CAGEDChord _getDShape(String rootNote, int rootIndex) {
     List<CAGEDPosition> allPositions = [];
+    final chordNotes = MusicTheory.majorChordNotes[rootNote] ?? [];
     
     // D形状的相对位置模式
     List<Map<String, dynamic>> pattern = [
-      {'string': 4, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': true},
-      {'string': 3, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false},
-      {'string': 2, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': false},
-      {'string': 1, 'fretOffset': 2, 'type': CAGEDFingerType.third, 'isRoot': false},
+      {'string': 4, 'fretOffset': 0, 'type': CAGEDFingerType.root, 'isRoot': true, 'noteIndex': 0},
+      {'string': 3, 'fretOffset': 2, 'type': CAGEDFingerType.fifth, 'isRoot': false, 'noteIndex': 2},
+      {'string': 2, 'fretOffset': 3, 'type': CAGEDFingerType.root, 'isRoot': false, 'noteIndex': 0},
+      {'string': 1, 'fretOffset': 2, 'type': CAGEDFingerType.third, 'isRoot': false, 'noteIndex': 1},
     ];
     
     // 计算在整个指板上的所有位置
@@ -238,10 +280,14 @@ class CAGEDSystem {
         for (var pos in pattern) {
           int actualFret = baseFret + (pos['fretOffset'] as int);
           if (actualFret >= 0 && actualFret <= 15) {
+            final noteIndex = pos['noteIndex'] as int;
+            final noteName = chordNotes.length > noteIndex ? chordNotes[noteIndex] : '';
+            
             allPositions.add(CAGEDPosition(
               string: pos['string'] as int,
               fret: actualFret,
               type: pos['type'] as CAGEDFingerType,
+              note: noteName,
               isRoot: pos['isRoot'] as bool,
             ));
           }
@@ -252,7 +298,7 @@ class CAGEDSystem {
     return CAGEDChord(
       name: 'D形状',
       description: '基于D和弦的指型，全指板位置',
-      baseFret: 0,
+      baseFret: allPositions.isNotEmpty ? allPositions.first.fret : 0,
       positions: allPositions,
     );
   }

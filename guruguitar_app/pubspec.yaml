@@ -43,6 +43,13 @@ dependencies:
   
   # For custom fonts and icons
   google_fonts: ^6.1.0
+  
+  # For internationalization
+  flutter_localizations:
+    sdk: flutter
+  
+  # For persistent storage
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:

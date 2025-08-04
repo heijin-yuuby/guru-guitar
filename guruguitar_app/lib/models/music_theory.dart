@@ -200,6 +200,55 @@ class MusicTheory {
     ],
   };
 
+  // 大三和弦的组成音模式（根音、三度、五度） - 使用正确的音名表示
+  static const Map<String, List<String>> majorChordNotes = {
+    // 升号调和弦
+    'C': ['C', 'E', 'G'],
+    'G': ['G', 'B', 'D'],
+    'D': ['D', 'F#', 'A'],
+    'A': ['A', 'C#', 'E'],
+    'E': ['E', 'G#', 'B'],
+    'B': ['B', 'D#', 'F#'],
+    'F#': ['F#', 'A#', 'C#'],
+    'C#': ['C#', 'E#', 'G#'],
+    
+    // 降号调和弦
+    'F': ['F', 'A', 'C'],
+    'Bb': ['Bb', 'D', 'F'],
+    'Eb': ['Eb', 'G', 'Bb'],
+    'Ab': ['Ab', 'C', 'Eb'],
+    'Db': ['Db', 'F', 'Ab'],
+    'Gb': ['Gb', 'Bb', 'Db'],
+    'Cb': ['Cb', 'Eb', 'Gb'],
+    
+    // 等音关系的备选名称
+    'D#': ['D#', 'G', 'A#'],
+    'G#': ['G#', 'C', 'D#'],
+    'A#': ['A#', 'D', 'F'],
+  };
+
+  // 小三和弦的组成音模式（根音、小三度、五度） - 使用正确的音名表示
+  static const Map<String, List<String>> minorChordNotes = {
+    // 升号调小调和弦
+    'A': ['A', 'C', 'E'],
+    'E': ['E', 'G', 'B'],
+    'B': ['B', 'D', 'F#'],
+    'F#': ['F#', 'A', 'C#'],
+    'C#': ['C#', 'E', 'G#'],
+    'G#': ['G#', 'B', 'D#'],
+    'D#': ['D#', 'F#', 'A#'],
+    'A#': ['A#', 'C#', 'E#'],
+    
+    // 降号调小调和弦
+    'D': ['D', 'F', 'A'],
+    'G': ['G', 'Bb', 'D'],
+    'C': ['C', 'Eb', 'G'],
+    'F': ['F', 'Ab', 'C'],
+    'Bb': ['Bb', 'Db', 'F'],
+    'Eb': ['Eb', 'Gb', 'Bb'],
+    'Ab': ['Ab', 'Cb', 'Eb'],
+  };
+
   static const Map<String, List<Chord>> commonChords = {
     'C': [
       Chord(name: 'C', type: '大三和弦', notes: ['C', 'E', 'G'], fingering: 'x32010'),

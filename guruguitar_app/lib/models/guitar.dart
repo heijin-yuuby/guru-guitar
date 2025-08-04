@@ -96,6 +96,47 @@ class GuitarData {
     'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'
   ];
 
+  // 调性对应的正确音阶音符（包含正确的升降号处理）
+  static const Map<String, List<String>> scaleNotes = {
+    // 大调 - 升号调
+    'C': ['C', 'D', 'E', 'F', 'G', 'A', 'B'],
+    'G': ['G', 'A', 'B', 'C', 'D', 'E', 'F#'],
+    'D': ['D', 'E', 'F#', 'G', 'A', 'B', 'C#'],
+    'A': ['A', 'B', 'C#', 'D', 'E', 'F#', 'G#'],
+    'E': ['E', 'F#', 'G#', 'A', 'B', 'C#', 'D#'],
+    'B': ['B', 'C#', 'D#', 'E', 'F#', 'G#', 'A#'],
+    'F#': ['F#', 'G#', 'A#', 'B', 'C#', 'D#', 'E#'],
+    'C#': ['C#', 'D#', 'E#', 'F#', 'G#', 'A#', 'B#'],
+    
+    // 大调 - 降号调
+    'F': ['F', 'G', 'A', 'Bb', 'C', 'D', 'E'],
+    'Bb': ['Bb', 'C', 'D', 'Eb', 'F', 'G', 'A'],
+    'Eb': ['Eb', 'F', 'G', 'Ab', 'Bb', 'C', 'D'],
+    'Ab': ['Ab', 'Bb', 'C', 'Db', 'Eb', 'F', 'G'],
+    'Db': ['Db', 'Eb', 'F', 'Gb', 'Ab', 'Bb', 'C'],
+    'Gb': ['Gb', 'Ab', 'Bb', 'Cb', 'Db', 'Eb', 'F'],
+    'Cb': ['Cb', 'Db', 'Eb', 'Fb', 'Gb', 'Ab', 'Bb'],
+    
+    // 小调 - 升号调
+    'A_minor': ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+    'E_minor': ['E', 'F#', 'G', 'A', 'B', 'C', 'D'],
+    'B_minor': ['B', 'C#', 'D', 'E', 'F#', 'G', 'A'],
+    'F#_minor': ['F#', 'G#', 'A', 'B', 'C#', 'D', 'E'],
+    'C#_minor': ['C#', 'D#', 'E', 'F#', 'G#', 'A', 'B'],
+    'G#_minor': ['G#', 'A#', 'B', 'C#', 'D#', 'E', 'F#'],
+    'D#_minor': ['D#', 'E#', 'F#', 'G#', 'A#', 'B', 'C#'],
+    'A#_minor': ['A#', 'B#', 'C#', 'D#', 'E#', 'F#', 'G#'],
+    
+    // 小调 - 降号调
+    'D_minor': ['D', 'E', 'F', 'G', 'A', 'Bb', 'C'],
+    'G_minor': ['G', 'A', 'Bb', 'C', 'D', 'Eb', 'F'],
+    'C_minor': ['C', 'D', 'Eb', 'F', 'G', 'Ab', 'Bb'],
+    'F_minor': ['F', 'G', 'Ab', 'Bb', 'C', 'Db', 'Eb'],
+    'Bb_minor': ['Bb', 'C', 'Db', 'Eb', 'F', 'Gb', 'Ab'],
+    'Eb_minor': ['Eb', 'F', 'Gb', 'Ab', 'Bb', 'Cb', 'Db'],
+    'Ab_minor': ['Ab', 'Bb', 'Cb', 'Db', 'Eb', 'Fb', 'Gb'],
+  };
+
   // 音程表
   static const Map<int, String> intervals = {
     0: '1', 1: 'b2', 2: '2', 3: 'b3', 4: '3', 5: '4',
@@ -119,31 +160,110 @@ class GuitarData {
     int startFret,
     int endFret,
   ) {
+    // 对于大调音阶，直接使用预定义的正确音符
+    if (scaleType == 'major') {
+      final correctScaleNotes = scaleNotes[rootNote];
+      if (correctScaleNotes != null) {
+        return _getPositionsForNotes(correctScaleNotes, startFret, endFret);
+      }
+    }
+    
+    // 对于小调音阶，直接使用预定义的正确音符
+    if (scaleType == 'minor') {
+      final minorKey = '${rootNote}_minor';
+      final correctScaleNotes = scaleNotes[minorKey];
+      if (correctScaleNotes != null) {
+        return _getPositionsForNotes(correctScaleNotes, startFret, endFret);
+      }
+    }
+
+    // 对于其他音阶类型，使用原来的计算方法
     final scaleIntervals = _getScaleIntervals(scaleType);
     final rootIndex = chromaticNotes.indexOf(rootNote);
-    final scaleNotes = scaleIntervals.map((interval) => 
+    final calculatedScaleNotes = scaleIntervals.map((interval) => 
       chromaticNotes[(rootIndex + interval) % 12]
     ).toList();
 
+    return _getPositionsForNotes(calculatedScaleNotes, startFret, endFret);
+  }
+
+  // 根据音符列表获取指板位置
+  static List<FretPosition> _getPositionsForNotes(
+    List<String> notesList,
+    int startFret,
+    int endFret,
+  ) {
     final positions = <FretPosition>[];
 
     for (final guitarString in standardTuning) {
       for (int fret = startFret; fret <= endFret; fret++) {
-        final note = getNoteAtFret(guitarString.stringNumber, fret);
-        if (scaleNotes.contains(note)) {
-          final noteIndex = scaleNotes.indexOf(note);
-          final intervalName = intervals[scaleIntervals[noteIndex]] ?? '';
-          positions.add(FretPosition(
-            stringNumber: guitarString.stringNumber,
-            fret: fret,
-            note: note,
-            interval: intervalName,
-          ));
+        final fretNote = getNoteAtFret(guitarString.stringNumber, fret);
+        
+        // 检查当前品格的音符是否在音阶中
+        for (int i = 0; i < notesList.length; i++) {
+          final scaleNote = notesList[i];
+          if (_notesAreEqual(fretNote, scaleNote)) {
+            final intervalName = (i + 1).toString(); // 1,2,3,4,5,6,7
+            positions.add(FretPosition(
+              stringNumber: guitarString.stringNumber,
+              fret: fret,
+              note: scaleNote, // 使用音阶中的正确音符名称
+              interval: intervalName,
+            ));
+            break;
+          }
         }
       }
     }
 
     return positions;
+  }
+
+  // 检查两个音符是否相等（考虑等音关系）
+  static bool _notesAreEqual(String note1, String note2) {
+    // 直接比较
+    if (note1 == note2) return true;
+    
+    // 处理等音关系
+    final note1Index = _getNoteIndex(note1);
+    final note2Index = _getNoteIndex(note2);
+    
+    return note1Index == note2Index;
+  }
+
+  // 获取音符在半音阶中的索引
+  static int _getNoteIndex(String note) {
+    // 处理特殊音符
+    final noteMap = {
+      // 升号音符
+      'E#': 5,   // F
+      'B#': 0,   // C
+      
+      // 降号音符
+      'Cb': 11,  // B
+      'Fb': 4,   // E
+    };
+    
+    if (noteMap.containsKey(note)) {
+      return noteMap[note]!;
+    }
+    
+    // 处理升号
+    if (note.contains('#')) {
+      final baseName = note.substring(0, 1);
+      final baseIndex = chromaticNotes.indexOf(baseName);
+      return (baseIndex + 1) % 12;
+    }
+    
+    // 处理降号
+    if (note.contains('b')) {
+      final baseName = note.substring(0, 1);
+      final baseIndex = chromaticNotes.indexOf(baseName);
+      return (baseIndex - 1 + 12) % 12;
+    }
+    
+    // 普通音符
+    return chromaticNotes.indexOf(note);
   }
 
   // 获取和弦形状
