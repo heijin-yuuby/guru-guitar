@@ -205,66 +205,29 @@ class _CircleOfFifthsWidgetState extends State<CircleOfFifthsWidget>
   void _handleTap(Offset localPosition, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final maxRadius = size.width * 0.4 * _animation.value;
-    final minRadius = 50.0; // 增加最小半径，避免中心区域误触
+    const minRadius = 50.0; // 避免中心区域误触
     final distanceFromCenter = (localPosition - center).distance;
-    
-    print('Touch position: $localPosition, center: $center, distance: $distanceFromCenter');
-    print('Radius range: $minRadius - $maxRadius');
     
     // 检查是否点击在有效的圈内区域
     if (distanceFromCenter <= maxRadius && distanceFromCenter >= minRadius) {
-      // 计算点击角度
-      final angle = math.atan2(
-        localPosition.dy - center.dy,
-        localPosition.dx - center.dx,
-      );
-      
-      // 转换为度数，从顶部开始（0度指向上方）
-      double degrees = (angle * 180 / math.pi + 90);
-      
-      // 确保角度在0-360范围内
-      degrees = degrees % 360;
+      // 计算点击角度并转换为度数（从顶部开始，0度指向上方）
+      final angle = math.atan2(localPosition.dy - center.dy, localPosition.dx - center.dx);
+      double degrees = (angle * 180 / math.pi + 90) % 360;
       if (degrees < 0) degrees += 360;
       
-      // 更精确的扇形索引计算
-      // 每个扇形30度，从0度开始（顶部）
-      final rawSectorIndex = (degrees / 30).floor();
-      final sectorIndex = rawSectorIndex % 12;
+      // 计算扇形索引和中心角度
+      final sectorIndex = (degrees / 30).floor() % 12;
+      final sectorCenterAngle = sectorIndex * 30.0 + 15.0;
       
-      // 简化的扇形中心角度计算
-      // 扇形0: 0-30度，中心=15度; 扇形1: 30-60度，中心=45度; 依此类推
-      final sectorCenterAngle = rawSectorIndex * 30.0 + 15.0;
-      
-      // 处理360度循环的角度差计算
+      // 计算角度差（处理360度循环）
       var angleDiff = (degrees - sectorCenterAngle).abs();
-      if (angleDiff > 180) {
-        angleDiff = 360 - angleDiff;
-      }
+      if (angleDiff > 180) angleDiff = 360 - angleDiff;
       
-      // 添加调试信息
-      print('Touch: degrees=$degrees, rawIndex=$rawSectorIndex, sectorIndex=$sectorIndex, distance=$distanceFromCenter');
-      print('SectorCenter: $sectorCenterAngle, angleDiff: $angleDiff');
-      
-      // 调整容差策略
-      // 下半圆需要更大的容差，因为这个区域更难精确点击
+      // 设置触摸容差：下半圆区域使用更大容差
       final tolerance = (degrees >= 135 && degrees <= 225) ? 15.0 : 12.0;
       
       if (angleDiff <= tolerance) {
-        print('Touch accepted: angle diff = $angleDiff, tolerance = $tolerance');
-        
-        // 额外验证：确保点击位置确实在预期的扇形内
-        final expectedKeyIndex = sectorIndex;
-        final currentKeys = _currentMode == CircleMode.major ? majorKeys : minorKeys;
-        final currentKeyNames = _currentMode == CircleMode.major ? majorKeyNames : minorKeyNames;
-        
-        if (expectedKeyIndex < currentKeys.length) {
-          print('Expected key: ${currentKeyNames[expectedKeyIndex]}');
-          _handleKeyTap(sectorIndex);
-        } else {
-          print('Touch rejected: invalid key index $expectedKeyIndex');
-        }
-      } else {
-        print('Touch rejected: angle diff = $angleDiff > tolerance $tolerance');
+        _handleKeyTap(sectorIndex);
       }
     }
   }
@@ -283,18 +246,14 @@ class _CircleOfFifthsWidgetState extends State<CircleOfFifthsWidget>
     
     final rootIndex = chromaticNotes.indexOf(normalizedRoot);
     if (rootIndex == -1) {
-      print('Warning: Root note $rootNote (normalized: $normalizedRoot) not found in chromatic notes');
       return [];
     }
     
     // 自然小调音程：W-H-W-W-H-W-W
     final intervals = [0, 2, 3, 5, 7, 8, 10];
-    final scale = intervals.map((interval) => 
+    return intervals.map((interval) => 
       chromaticNotes[(rootIndex + interval) % 12]
     ).toList();
-    
-    print('Generated scale for $rootNote: $scale');
-    return scale;
   }
 
   // 获取小调和弦的方法
@@ -338,26 +297,17 @@ class CircleOfFifthsPainter extends CustomPainter {
     
     // 绘制中心标题
     _drawCenterTitle(canvas, center);
-    
-    // 绘制调试信息（暂时禁用以清理界面）
-    // _drawDebugInfo(canvas, center, maxRadius);
   }
 
   void _drawBackground(Canvas canvas, Offset center, double radius) {
-    // 清新的白色背景
-    final backgroundPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
+    // 白色背景
+    canvas.drawCircle(center, radius, Paint()..color = Colors.white);
     
-    canvas.drawCircle(center, radius, backgroundPaint);
-    
-    // 轻微的灰色边框
-    final borderPaint = Paint()
+    // 灰色边框
+    canvas.drawCircle(center, radius, Paint()
       ..color = const Color(0xFFE5E7EB)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    
-    canvas.drawCircle(center, radius, borderPaint);
+      ..strokeWidth = 2);
   }
 
   void _drawCircleRing(Canvas canvas, Offset center, double radius) {
@@ -365,46 +315,36 @@ class CircleOfFifthsPainter extends CustomPainter {
         ? _CircleOfFifthsWidgetState.majorKeyNames 
         : _CircleOfFifthsWidgetState.minorKeyNames;
     
-    const sectorAngle = 2 * math.pi / 12; // 30度
+    const sectorAngle = 2 * math.pi / 12; // 每个扇形30度
     
     for (int i = 0; i < keys.length; i++) {
-      // 确保绘制角度与触摸检测一致：从0度开始（顶部）
       final startAngle = (i * sectorAngle) - (math.pi / 2); // 从顶部开始
-      
       final isSelected = selectedKey != null && _isKeyMatch(keys[i], selectedKey!);
       
-      // 黑白配色扇形背景
-      final sectorPaint = Paint()
-        ..color = isSelected 
-            ? Colors.black // 选中状态为黑色
-            : Colors.white // 默认状态为白色
-        ..style = PaintingStyle.fill;
-      
+      // 绘制扇形
       final path = Path()
         ..moveTo(center.dx, center.dy)
-        ..arcTo(
-          Rect.fromCircle(center: center, radius: radius),
-          startAngle,
-          sectorAngle,
-          false,
-        )
+        ..arcTo(Rect.fromCircle(center: center, radius: radius), startAngle, sectorAngle, false)
         ..close();
       
-      canvas.drawPath(path, sectorPaint);
+      // 填充色：选中为黑色，默认为白色
+      canvas.drawPath(path, Paint()
+        ..color = isSelected ? Colors.black : Colors.white
+        ..style = PaintingStyle.fill);
       
-      // 绘制黑色边框
-      final borderPaint = Paint()
+      // 边框
+      canvas.drawPath(path, Paint()
         ..color = Colors.black
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
-      
-      canvas.drawPath(path, borderPaint);
+        ..strokeWidth = 2);
       
       // 绘制调性文字
       final textAngle = startAngle + sectorAngle / 2;
       final textRadius = radius * 0.75;
-      final textX = center.dx + textRadius * math.cos(textAngle);
-      final textY = center.dy + textRadius * math.sin(textAngle);
+      final textPosition = Offset(
+        center.dx + textRadius * math.cos(textAngle),
+        center.dy + textRadius * math.sin(textAngle),
+      );
       
       final textPainter = TextPainter(
         text: TextSpan(
@@ -417,39 +357,27 @@ class CircleOfFifthsPainter extends CustomPainter {
         ),
         textAlign: TextAlign.center,
         textDirection: TextDirection.ltr,
-      );
+      )..layout();
       
-      textPainter.layout();
-      textPainter.paint(
-        canvas,
-        Offset(
-          textX - textPainter.width / 2,
-          textY - textPainter.height / 2,
-        ),
-      );
+      textPainter.paint(canvas, Offset(
+        textPosition.dx - textPainter.width / 2,
+        textPosition.dy - textPainter.height / 2,
+      ));
     }
   }
 
-
-
   void _drawCenterTitle(Canvas canvas, Offset center) {
-    final titleText = mode == CircleMode.major ? majorText : minorText;
+    const centerRadius = 50.0; // 与触摸检测中的 minRadius 保持一致
     
-    // 白色中心圆 - 与触摸检测保持一致的半径
-    final centerRadius = 50.0; // 与触摸检测中的 minRadius 保持一致
-    final centerPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-    
-    final centerBorderPaint = Paint()
+    // 绘制中心圆
+    canvas.drawCircle(center, centerRadius, Paint()..color = Colors.white);
+    canvas.drawCircle(center, centerRadius, Paint()
       ..color = Colors.black
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
+      ..strokeWidth = 2);
     
-    canvas.drawCircle(center, centerRadius, centerPaint);
-    canvas.drawCircle(center, centerRadius, centerBorderPaint);
-    
-    // 黑色标题
+    // 绘制标题文字
+    final titleText = mode == CircleMode.major ? majorText : minorText;
     final titlePainter = TextPainter(
       text: TextSpan(
         text: titleText,
@@ -462,19 +390,13 @@ class CircleOfFifthsPainter extends CustomPainter {
       ),
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
-    );
+    )..layout();
     
-    titlePainter.layout();
-    titlePainter.paint(
-      canvas,
-      Offset(
-        center.dx - titlePainter.width / 2,
-        center.dy - titlePainter.height / 2,
-      ),
-    );
+    titlePainter.paint(canvas, Offset(
+      center.dx - titlePainter.width / 2,
+      center.dy - titlePainter.height / 2,
+    ));
   }
-
-
 
   bool _isKeyMatch(String displayKey, MusicKey musicKey) {
     if (mode == CircleMode.major) {

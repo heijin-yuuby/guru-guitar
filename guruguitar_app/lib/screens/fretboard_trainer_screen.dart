@@ -187,7 +187,7 @@ class _FretboardTrainerScreenState extends State<FretboardTrainerScreen>
       );
       _targetInterval = targetInterval;
       final intervalText = _l10n?.get(targetInterval) ?? targetInterval;
-      _questionText = _l10n?.get('find_interval_from_note', {'note': rootNote, 'interval': intervalText}) ?? '找到距离 $rootNote 一个$targetInterval的音符';
+      _questionText = _l10n?.get('find_interval_from_note', {'note': rootNote, 'interval': intervalText}) ?? '找到距离 $rootNote 一个${intervalText}的音符';
       _hintText = _l10n?.get('click_root_then_interval', {'note': rootNote, 'string': rootString.toString(), 'fret': rootFret.toString()}) ?? '先点击根音 $rootNote（第${rootString}弦第${rootFret}品），再点击目标音程';
       _highlightedPositions = [];
       _foundNoteCount = 0; // 重置音符计数

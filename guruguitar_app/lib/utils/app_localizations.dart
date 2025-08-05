@@ -50,6 +50,15 @@ class AppLocalizations {
       'click_key_for_details': '点击调性查看详情',
       'rotate_circle_instruction': '🔄 拖动旋转圆环，将调性对准箭头可查看详情',
       
+      // 音阶模式
+      'minor_scale': '小调音阶',
+      'memory_test': '记忆测试',
+      'dorian_mode': '多利亚调式',
+      'mixolydian_mode': '混合利底亚调式',
+      'phrygian_mode': '弗里几亚调式',
+      'lydian_mode': '利底亚调式',
+      'locrian_mode': '洛克里亚调式',
+      
       // 音阶分析
       'scale_analysis': '音阶分析',
       'fretboard_chart': '指板图谱',
@@ -214,6 +223,15 @@ class AppLocalizations {
       'click_key_for_details': 'Click key for details',
       'rotate_circle_instruction': '🔄 Drag to rotate circle, align key with arrow to view details',
       
+      // Scale Modes
+      'minor_scale': 'Minor Scale',
+      'memory_test': 'Memory Test',
+      'dorian_mode': 'Dorian Mode',
+      'mixolydian_mode': 'Mixolydian Mode',
+      'phrygian_mode': 'Phrygian Mode',
+      'lydian_mode': 'Lydian Mode',
+      'locrian_mode': 'Locrian Mode',
+      
       // Scale Analysis
       'scale_analysis': 'Scale Analysis',
       'fretboard_chart': 'Fretboard Chart',
@@ -222,6 +240,15 @@ class AppLocalizations {
       'all_fretboard_arrangements': 'All fretboard arrangements for {key}',
       'chord_components': '{key} chord components',
       'based_on_c_chord_shape': 'Based on C chord shape, full fretboard position',
+      'fret_position': 'Fret {fret} position',
+      'expand': 'Expand',
+      'landscape_view_full_fretboard': 'Landscape view full fretboard',
+      'fingering_instructions': 'Fingering Instructions',
+      'complete_fretboard_view': 'Complete fretboard view - Fret {fret} position',
+      'detailed_fingering_info': 'Detailed fingering information',
+      'string_fret_position': 'String {string} - Fret {fret}',
+      'rotate_phone_for_better_view': '💡 Rotate phone to landscape mode for better viewing experience',
+      'landscape_mode_full_diagram': '🎸 Landscape mode - Complete fretboard diagram',
       'scale_constituent_notes': 'Scale Constituent Notes',
       'degree_and_function_of_each_note': 'Degree and Function of Each Note',
       'interval_relationships': 'Interval Relationships',
@@ -343,6 +370,15 @@ class AppLocalizations {
       'click_key_for_details': 'Cliquez sur la clé pour les détails',
       'rotate_circle_instruction': '🔄 Faites glisser pour faire tourner le cercle, alignez la clé avec la flèche pour voir les détails',
       
+      // Modes de Gamme
+      'minor_scale': 'Gamme Mineure',
+      'memory_test': 'Test de Mémoire',
+      'dorian_mode': 'Mode Dorien',
+      'mixolydian_mode': 'Mode Mixolydien',
+      'phrygian_mode': 'Mode Phrygien',
+      'lydian_mode': 'Mode Lydien',
+      'locrian_mode': 'Mode Locrien',
+      
       // Analyse des Gammes
       'scale_analysis': 'Analyse des Gammes',
       'fretboard_chart': 'Diagramme du Manche',
@@ -351,6 +387,15 @@ class AppLocalizations {
       'all_fretboard_arrangements': 'Tous les arrangements de manche pour {key}',
       'chord_components': 'Composants d\'accord {key}',
       'based_on_c_chord_shape': 'Basé sur la forme d\'accord C, position complète du manche',
+      'fret_position': 'Position de la {fret}e frette',
+      'expand': 'Développer',
+      'landscape_view_full_fretboard': 'Vue paysage du manche complet',
+      'fingering_instructions': 'Instructions de Doigtés',
+      'complete_fretboard_view': 'Vue complète du manche - Position de la {fret}e frette',
+      'detailed_fingering_info': 'Informations détaillées sur les doigtés',
+      'string_fret_position': 'Corde {string} - Frette {fret}',
+      'rotate_phone_for_better_view': '💡 Tournez le téléphone en mode paysage pour une meilleure expérience de visualisation',
+      'landscape_mode_full_diagram': '🎸 Mode paysage - Diagramme complet du manche',
       
       // Défi des Gammes
       'scale_challenge': 'Défi des Gammes',
@@ -472,6 +517,15 @@ class AppLocalizations {
       'click_key_for_details': '調をクリックして詳細を表示',
       'rotate_circle_instruction': '🔄 ドラッグして円を回転させ、調を矢印に合わせて詳細を表示',
       
+      // スケールモード
+      'minor_scale': '短音階',
+      'memory_test': '記憶テスト',
+      'dorian_mode': 'ドリアンモード',
+      'mixolydian_mode': 'ミクソリディアンモード',
+      'phrygian_mode': 'フリジアンモード',
+      'lydian_mode': 'リディアンモード',
+      'locrian_mode': 'ロクリアンモード',
+      
       // スケール分析
       'scale_analysis': 'スケール分析',
       'fretboard_chart': 'フレットボードチャート',
@@ -480,6 +534,15 @@ class AppLocalizations {
       'all_fretboard_arrangements': '{key}の全フレットボード配置',
       'chord_components': '{key}コード構成音',
       'based_on_c_chord_shape': 'Cコード形状に基づく、全フレットボード位置',
+      'fret_position': '第{fret}フレットポジション',
+      'expand': '展開',
+      'landscape_view_full_fretboard': '横画面で完全なフレットボードを表示',
+      'fingering_instructions': '運指説明',
+      'complete_fretboard_view': '完全なフレットボード表示 - 第{fret}フレットポジション',
+      'detailed_fingering_info': '詳細な運指情報',
+      'string_fret_position': '{string}弦-{fret}フレット',
+      'rotate_phone_for_better_view': '💡 より良い閲覧体験のために携帯電話を横向きモードに回転してください',
+      'landscape_mode_full_diagram': '🎸 横向きモード - 完全なフレットボード図',
       'scale_constituent_notes': 'スケール構成音',
       'degree_and_function_of_each_note': '各音の度数と機能',
       'interval_relationships': '音程関係',

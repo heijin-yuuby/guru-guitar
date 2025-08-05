@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/music_theory.dart';
 import '../models/scale_practice.dart';
 import '../widgets/scale_practice_widget.dart';
+import '../utils/app_localizations.dart';
 
 class ScalePracticeScreen extends StatefulWidget {
   final MusicKey selectedKey;
@@ -222,23 +223,24 @@ class _ScalePracticeScreenState extends State<ScalePracticeScreen> {
   }
 
   String _getModeTitle(PracticeMode mode) {
+    final l10n = AppLocalizations.of(context);
     switch (mode) {
       case PracticeMode.majorScale:
-        return 'Major Scale';
+        return l10n.get('major_scale');
       case PracticeMode.minorScale:
-        return 'Minor Scale';
+        return l10n.get('minor_scale');
       case PracticeMode.memoryTest:
-        return 'Memory Test';
+        return l10n.get('memory_test');
       case PracticeMode.dorianMode:
-        return 'Dorian Mode';
+        return l10n.get('dorian_mode');
       case PracticeMode.mixolydianMode:
-        return 'Mixolydian';
+        return l10n.get('mixolydian_mode');
       case PracticeMode.phrygianMode:
-        return 'Phrygian';
+        return l10n.get('phrygian_mode');
       case PracticeMode.lydianMode:
-        return 'Lydian';
+        return l10n.get('lydian_mode');
       case PracticeMode.locrianMode:
-        return 'Locrian';
+        return l10n.get('locrian_mode');
     }
   }
 } 

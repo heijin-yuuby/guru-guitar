@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/music_theory.dart';
 import '../widgets/fretboard_widget.dart';
@@ -131,7 +132,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isMinor ? 'Natural Minor Scale' : 'Major Scale',
+                  isMinor ? l10n.get('natural_minor_scale') : l10n.get('major_scale'),
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     color: Colors.white,
@@ -616,12 +617,15 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                           color: Colors.black,
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          l10n.get('landscape_view_full_scale_diagram'),
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
+                        Flexible(
+                          child: Text(
+                            l10n.get('landscape_view_full_scale_diagram'),
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -782,7 +786,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  '第${chord.baseFret}品位置',
+                  l10n.get('fret_position', {'fret': chord.baseFret.toString()}),
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1015,6 +1019,10 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
   }
 
   void _showFullFretboard(CAGEDChord chord) {
+    _showFullScreenFretboard(chord);
+  }
+
+  void _showFullFretboardOld(CAGEDChord chord) {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -1069,7 +1077,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '完整指板视图 - 第${chord.baseFret}品位置',
+                            l10n.get('complete_fretboard_view', {'fret': chord.baseFret.toString()}),
                             style: GoogleFonts.inter(
                               fontSize: 14,
                               color: Colors.white,
@@ -1224,7 +1232,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
 }
 
 // 全屏指板视图
-class FullScreenFretboardView extends StatelessWidget {
+class FullScreenFretboardView extends StatefulWidget {
   final String title;
   final CAGEDChord? cagedChord;
   final String? highlightScale;
@@ -1238,6 +1246,33 @@ class FullScreenFretboardView extends StatelessWidget {
   });
 
   @override
+  State<FullScreenFretboardView> createState() => _FullScreenFretboardViewState();
+}
+
+class _FullScreenFretboardViewState extends State<FullScreenFretboardView> {
+  @override
+  void initState() {
+    super.initState();
+    // 强制横屏
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  @override
+  void dispose() {
+    // 恢复所有方向
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
@@ -1245,7 +1280,7 @@ class FullScreenFretboardView extends StatelessWidget {
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
-          title,
+          widget.title,
           style: GoogleFonts.inter(
             color: Colors.white,
             fontSize: 18,
@@ -1276,10 +1311,10 @@ class FullScreenFretboardView extends StatelessWidget {
                   ),
                   child: Text(
                     orientation == Orientation.portrait 
-                        ? '💡 旋转手机到横屏模式获得更好的查看体验'
-                        : '🎸 横屏模式 - 完整指板图谱',
+                        ? AppLocalizations.of(context).get('rotate_phone_for_better_view')
+                        : AppLocalizations.of(context).get('landscape_mode_full_diagram'),
                     style: GoogleFonts.inter(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 14,
                     ),
                     textAlign: TextAlign.center,
@@ -1296,9 +1331,9 @@ class FullScreenFretboardView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: FretboardWidget(
-                      cagedChord: cagedChord,
-                      highlightScale: highlightScale,
-                      scaleType: scaleType ?? 'major',
+                      cagedChord: widget.cagedChord,
+                      highlightScale: widget.highlightScale,
+                      scaleType: widget.scaleType ?? 'major',
                       startFret: 0,
                       endFret: 15, // 显示更多品格
                       showNotes: true,
@@ -1310,7 +1345,7 @@ class FullScreenFretboardView extends StatelessWidget {
                 const SizedBox(height: 16),
                 
                 // 图例说明
-                if (cagedChord != null) ...[
+                if (widget.cagedChord != null) ...[
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -1320,9 +1355,9 @@ class FullScreenFretboardView extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          '指法说明',
+                          AppLocalizations.of(context).get('fingering_instructions'),
                           style: GoogleFonts.inter(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1332,9 +1367,9 @@ class FullScreenFretboardView extends StatelessWidget {
                           spacing: 16,
                           runSpacing: 8,
                           children: [
-                            _buildWhiteLegendItem('R', '根音', Colors.black),
-                            _buildWhiteLegendItem('3', '三度音', Colors.black),
-                            _buildWhiteLegendItem('5', '五度音', Colors.black),
+                            _buildWhiteLegendItem('R', AppLocalizations.of(context).get('root_note'), Colors.black),
+                            _buildWhiteLegendItem('3', AppLocalizations.of(context).get('major_third'), Colors.black),
+                            _buildWhiteLegendItem('5', AppLocalizations.of(context).get('perfect_fifth'), Colors.black),
                           ],
                         ),
                       ],
@@ -1359,7 +1394,7 @@ class FullScreenFretboardView extends StatelessWidget {
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.white, width: 2),
+            border: Border.all(color: Colors.black, width: 2),
           ),
           child: Center(
             child: Text(
@@ -1377,7 +1412,7 @@ class FullScreenFretboardView extends StatelessWidget {
           description,
           style: GoogleFonts.inter(
             fontSize: 12,
-            color: Colors.white,
+            color: Colors.black,
           ),
         ),
       ],
