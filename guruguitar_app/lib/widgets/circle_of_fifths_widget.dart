@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../models/music_theory.dart';
+import '../utils/app_localizations.dart';
 
 enum CircleMode { major, minor }
 
@@ -71,6 +72,7 @@ class _CircleOfFifthsWidgetState extends State<CircleOfFifthsWidget>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         // 大小调切换按钮
@@ -91,6 +93,8 @@ class _CircleOfFifthsWidgetState extends State<CircleOfFifthsWidget>
                   mode: _currentMode,
                   animationValue: _animation.value,
                   selectedKey: _selectedKey ?? widget.selectedKey,
+                  majorText: l10n.get('major'),
+                  minorText: l10n.get('minor'),
                 ),
               ),
             );
@@ -113,6 +117,7 @@ class _CircleOfFifthsWidgetState extends State<CircleOfFifthsWidget>
   }
 
   Widget _buildModeToggle() {
+    final l10n = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey[100],
@@ -122,8 +127,8 @@ class _CircleOfFifthsWidgetState extends State<CircleOfFifthsWidget>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildToggleButton('大调', CircleMode.major),
-          _buildToggleButton('小调', CircleMode.minor),
+          _buildToggleButton(l10n.get('major'), CircleMode.major),
+          _buildToggleButton(l10n.get('minor'), CircleMode.minor),
         ],
       ),
     );
@@ -131,6 +136,7 @@ class _CircleOfFifthsWidgetState extends State<CircleOfFifthsWidget>
 
   Widget _buildToggleButton(String text, CircleMode mode) {
     final isSelected = _currentMode == mode;
+    
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -251,11 +257,15 @@ class CircleOfFifthsPainter extends CustomPainter {
   final CircleMode mode;
   final double animationValue;
   final MusicKey? selectedKey;
-  
+  final String majorText;
+  final String minorText;
+
   CircleOfFifthsPainter({
     required this.mode,
     required this.animationValue,
     this.selectedKey,
+    required this.majorText,
+    required this.minorText,
   });
 
   @override
@@ -362,7 +372,7 @@ class CircleOfFifthsPainter extends CustomPainter {
 
 
   void _drawCenterTitle(Canvas canvas, Offset center) {
-    final titleText = mode == CircleMode.major ? '大调' : '小调';
+    final titleText = mode == CircleMode.major ? majorText : minorText;
     
     // 白色中心圆
     final centerPaint = Paint()

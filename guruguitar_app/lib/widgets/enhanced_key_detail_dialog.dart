@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/music_theory.dart';
 import '../widgets/fretboard_widget.dart';
 import '../models/caged_system.dart';
+import '../utils/app_localizations.dart';
 
 
 class EnhancedKeyDetailDialog extends StatefulWidget {
@@ -20,12 +21,19 @@ class EnhancedKeyDetailDialog extends StatefulWidget {
 class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  late AppLocalizations l10n;
 
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    l10n = AppLocalizations.of(context);
   }
 
   @override
@@ -196,10 +204,10 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
           fontSize: 13,
           fontWeight: FontWeight.w400,
         ),
-        tabs: const [
-          Tab(text: '音阶分析'),
-          Tab(text: '指板图谱'),
-          Tab(text: 'CAGED'),
+        tabs: [
+          Tab(text: l10n.get('scale_analysis')),
+          Tab(text: l10n.get('fretboard_chart')),
+          Tab(text: l10n.get('caged_system')),
         ],
       ),
     );
@@ -212,7 +220,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 音阶构成
-          _buildSectionHeader('音阶构成音', '每个音的度数和功能'),
+          _buildSectionHeader(l10n.get('scale_constituent_notes'), l10n.get('degree_and_function_of_each_note')),
           const SizedBox(height: 16),
           
           _buildScaleDegreesCard(),
@@ -220,7 +228,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
           const SizedBox(height: 24),
           
           // 音程关系
-          _buildSectionHeader('音程关系', '相邻音之间的音程'),
+          _buildSectionHeader(l10n.get('interval_relationships'), l10n.get('intervals_between_adjacent_notes')),
           const SizedBox(height: 16),
           
           _buildIntervalsCard(),
@@ -228,7 +236,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
           const SizedBox(height: 24),
           
           // 特征音
-          _buildSectionHeader('特征音', '调性的重要标识音'),
+          _buildSectionHeader(l10n.get('characteristic_notes'), l10n.get('important_identifying_notes_of_key')),
           const SizedBox(height: 16),
           
           _buildCharacteristicNotesCard(),
@@ -262,9 +270,10 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
   }
 
   Widget _buildScaleDegreesCard() {
+    final l10n = AppLocalizations.of(context);
     final degreeNames = widget.musicKey.name.contains('m') || widget.musicKey.name.contains('小调')
-        ? ['主音', '上主音', '中音', '下属音', '属音', '下中音', '导音']
-        : ['主音', '上主音', '中音', '下属音', '属音', '下中音', '导音'];
+        ? [l10n.get('tonic'), l10n.get('supertonic'), l10n.get('mediant'), l10n.get('subdominant'), l10n.get('dominant'), l10n.get('submediant'), l10n.get('leading_tone')]
+        : [l10n.get('tonic'), l10n.get('supertonic'), l10n.get('mediant'), l10n.get('subdominant'), l10n.get('dominant'), l10n.get('submediant'), l10n.get('leading_tone')];
     
     final romanNumerals = widget.musicKey.name.contains('m') || widget.musicKey.name.contains('小调')
         ? ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII']
@@ -517,7 +526,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('指板音阶图谱', '在吉他指板上显示音阶位置'),
+                          _buildSectionHeader(l10n.get('fretboard_scale_diagram'), l10n.get('display_scale_positions_on_fretboard')),
           const SizedBox(height: 16),
           
 
@@ -575,7 +584,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '横屏查看完整音阶指板图谱',
+                          l10n.get('landscape_view_full_scale_diagram'),
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -613,7 +622,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('CAGED系统', '${rootNote}${chordTypeName}的所有指板排列'),
+                          _buildSectionHeader(l10n.get('caged_system'), l10n.get('all_fretboard_arrangements', {'key': '${rootNote}${chordTypeName}'})),
           const SizedBox(height: 16),
           
           // 和弦组成音说明
@@ -628,7 +637,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${rootNote}${chordTypeName}组成音',
+                  l10n.get('chord_components', {'key': '${rootNote}${chordTypeName}'}),
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -652,7 +661,7 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
           const SizedBox(height: 16),
           
           Text(
-            'CAGED系统基于C、A、G、E、D这五个开放和弦的形状，通过移调在整个指板上演奏${widget.musicKey.name}和弦。每种形状展示了和弦在不同把位的排列。',
+            l10n.get('caged_system_description', {'key': widget.musicKey.name}),
             style: GoogleFonts.inter(
               fontSize: 14,
               color: Colors.black,

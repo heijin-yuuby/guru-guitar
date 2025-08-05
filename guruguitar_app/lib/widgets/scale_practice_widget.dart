@@ -183,13 +183,15 @@ class _ScalePracticeWidgetState extends State<ScalePracticeWidget> {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              alignment: WrapAlignment.center,
                               children: List.generate(
                                 widget.practice.notes.length,
                                 (index) => Container(
-                                  width: 50,
-                                  height: 50,
+                                  width: 45,
+                                  height: 45,
                                   decoration: BoxDecoration(
                                     color: userNotes[index].isNotEmpty 
                                         ? const Color(0xFF1A1A1A) 

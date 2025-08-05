@@ -3,6 +3,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../widgets/circle_of_fifths_widget.dart';
 import '../widgets/enhanced_key_detail_dialog.dart';
 import '../models/music_theory.dart';
+import '../utils/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CircleOfFifthsScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class _CircleOfFifthsScreenState extends State<CircleOfFifthsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA), // 清新的浅色背景
       body: SafeArea(
@@ -40,20 +42,11 @@ class _CircleOfFifthsScreenState extends State<CircleOfFifthsScreen> {
               child: Row(
                 children: [
                   Text(
-                    'Circle of Fifths',
+                    l10n.get('circle_of_fifths'),
                     style: GoogleFonts.inter(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF1F2937),
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    '五度圈',
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF6B7280),
                     ),
                   ),
                 ],
@@ -109,7 +102,7 @@ class _CircleOfFifthsScreenState extends State<CircleOfFifthsScreen> {
                             ),
                             const SizedBox(width: 12),
                             Text(
-                              '点击调性查看详情',
+                              l10n.get('click_key_for_details'),
                               style: GoogleFonts.inter(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,

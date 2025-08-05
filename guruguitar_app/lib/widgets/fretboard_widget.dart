@@ -11,6 +11,7 @@ class FretboardWidget extends StatefulWidget {
   final int endFret; // 结束品格
   final bool showNotes; // 显示音符名称
   final bool showIntervals; // 显示音程
+  final List<FretPosition>? customHighlightPositions; // 自定义高亮位置
 
   final Function(FretPosition)? onFretTap; // 点击品格回调
 
@@ -24,6 +25,7 @@ class FretboardWidget extends StatefulWidget {
     this.endFret = 12,
     this.showNotes = true,
     this.showIntervals = false,
+    this.customHighlightPositions,
 
     this.onFretTap,
   });
@@ -68,7 +70,8 @@ class _FretboardWidgetState extends State<FretboardWidget> {
     if (oldWidget.highlightScale != widget.highlightScale ||
         oldWidget.scaleType != widget.scaleType ||
         oldWidget.highlightChords != widget.highlightChords ||
-        oldWidget.cagedChord != widget.cagedChord) {
+        oldWidget.cagedChord != widget.cagedChord ||
+        oldWidget.customHighlightPositions != widget.customHighlightPositions) {
       _updateHighlights();
     }
   }
@@ -78,8 +81,11 @@ class _FretboardWidgetState extends State<FretboardWidget> {
     chordPositions.clear();
     cagedPositions.clear();
 
-    // 更新音阶高亮
-    if (widget.highlightScale != null) {
+    // 更新自定义高亮位置（优先级最高）
+    if (widget.customHighlightPositions != null) {
+      highlightedPositions.addAll(widget.customHighlightPositions!);
+    } else if (widget.highlightScale != null) {
+      // 更新音阶高亮
       highlightedPositions = GuitarData.getScalePositions(
         widget.highlightScale!,
         widget.scaleType!,

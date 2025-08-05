@@ -13,24 +13,38 @@ class GuruGuitarApp extends StatefulWidget {
   const GuruGuitarApp({super.key});
 
   @override
-  State<GuruGuitarApp> createState() => _GuruGuitarAppState();
+  State<GuruGuitarApp> createState() => GuruGuitarAppState();
 }
 
-class _GuruGuitarAppState extends State<GuruGuitarApp> {
+class GuruGuitarAppState extends State<GuruGuitarApp> {
   Locale _locale = const Locale('zh', 'CN');
+  static GuruGuitarAppState? _instance;
 
   @override
   void initState() {
     super.initState();
+    _instance = this;
     _loadLanguage();
+  }
+
+  @override
+  void dispose() {
+    _instance = null;
+    super.dispose();
   }
 
   void _loadLanguage() async {
     final prefs = await SharedPreferences.getInstance();
     final languageCode = prefs.getString('selectedLanguage') ?? 'zh';
-    print('Language loaded: $languageCode'); // 调试信息
     setState(() {
       _locale = Locale(languageCode);
+    });
+  }
+
+  // 静态方法，供设置页面调用
+  static void updateLanguage(String languageCode) {
+    _instance?.setState(() {
+      _instance!._locale = Locale(languageCode);
     });
   }
 

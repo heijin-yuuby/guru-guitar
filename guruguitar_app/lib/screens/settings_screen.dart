@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
 import '../utils/app_localizations.dart';
+import '../main.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -31,7 +30,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedLanguage', _selectedLanguage);
-    print('Language saved: $_selectedLanguage'); // 调试信息
   }
 
   @override
@@ -117,7 +115,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _selectedLanguage = language['code'] as String;
               });
               _saveSettings();
-              _showLanguageChangeDialog(l10n, language['name'] as String);
+              
+              // 立即更新应用语言
+              if (mounted) {
+                // 调用主应用的静态方法来更新语言
+                GuruGuitarAppState.updateLanguage(language['code'] as String);
+                
+                // 显示成功提示
+                _showLanguageChangeSuccess(l10n, language['name'] as String);
+              }
+              
+
             },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -183,7 +191,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildAboutItem(
             icon: Icons.person_outline,
             title: l10n.get('developer'),
-            subtitle: 'Guitar Master Team',
+            subtitle: 'YUUBY',
             onTap: () {},
           ),
           _buildAboutItem(
@@ -248,50 +256,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showLanguageChangeDialog(AppLocalizations l10n, String languageName) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Text(
-          'Language Changed',
-          style: GoogleFonts.inter(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+  void _showLanguageChangeSuccess(AppLocalizations l10n, String languageName) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
         content: Text(
-          'Language has been changed to $languageName. Please manually restart the app for changes to take effect.',
+          '${l10n.get('language_changed')} $languageName',
           style: GoogleFonts.inter(
             fontSize: 14,
-            color: const Color(0xFF666666),
+            fontWeight: FontWeight.w500,
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              // 退出应用，让用户手动重启
-              _restartApp();
-            },
-            child: Text(
-              l10n.get('confirm'),
-              style: GoogleFonts.inter(fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
+        backgroundColor: const Color(0xFF10B981),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  void _restartApp() {
-    // 使用 SystemNavigator 重启应用
-    if (Platform.isIOS || Platform.isAndroid) {
-      // 先退出应用，然后重新启动
-      SystemNavigator.pop();
-    }
-  }
-} 
+
+}
