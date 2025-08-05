@@ -48,6 +48,7 @@ class AppLocalizations {
       'natural_minor_scale': '自然小调',
       'major_scale': '自然大调',
       'click_key_for_details': '点击调性查看详情',
+      'rotate_circle_instruction': '🔄 拖动旋转圆环，将调性对准箭头可查看详情',
       
       // 音阶分析
       'scale_analysis': '音阶分析',
@@ -137,7 +138,7 @@ class AppLocalizations {
       'string_fret_position': '{string}弦-{fret}品',
       
       // 音阶练习
-      'scale_practice_title': '音阶练习',
+      'scale_practice_title': '指板练习',
       'select_key': '选择调性',
       'practice_mode': '练习模式',
       'select_practice_mode': '选择练习模式来提升你的吉他技能',
@@ -211,6 +212,7 @@ class AppLocalizations {
       'natural_minor_scale': 'Natural Minor Scale',
       'major_scale': 'Major Scale',
       'click_key_for_details': 'Click key for details',
+      'rotate_circle_instruction': '🔄 Drag to rotate circle, align key with arrow to view details',
       
       // Scale Analysis
       'scale_analysis': 'Scale Analysis',
@@ -265,7 +267,7 @@ class AppLocalizations {
       'language_changed': 'Language changed to',
       
       // Scale Practice
-      'scale_practice_title': 'Scale Practice',
+      'scale_practice_title': 'Fretboard Practice',
       'select_key': 'Select Key',
       'practice_mode': 'Practice Mode',
       'select_practice_mode': 'Choose practice modes to improve your guitar skills',
@@ -339,6 +341,7 @@ class AppLocalizations {
       'natural_minor_scale': 'Gamme Mineure Naturelle',
       'major_scale': 'Gamme Majeure',
       'click_key_for_details': 'Cliquez sur la clé pour les détails',
+      'rotate_circle_instruction': '🔄 Faites glisser pour faire tourner le cercle, alignez la clé avec la flèche pour voir les détails',
       
       // Analyse des Gammes
       'scale_analysis': 'Analyse des Gammes',
@@ -467,6 +470,7 @@ class AppLocalizations {
       'natural_minor_scale': '自然短音階',
       'major_scale': '長音階',
       'click_key_for_details': '調をクリックして詳細を表示',
+      'rotate_circle_instruction': '🔄 ドラッグして円を回転させ、調を矢印に合わせて詳細を表示',
       
       // スケール分析
       'scale_analysis': 'スケール分析',

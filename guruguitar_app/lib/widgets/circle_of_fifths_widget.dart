@@ -105,7 +105,7 @@ class _CircleOfFifthsWidgetState extends State<CircleOfFifthsWidget>
         
         // 提示文字
         Text(
-          '🔄 拖动旋转圆环，将调性对准箭头可查看详情',
+          l10n.get('rotate_circle_instruction'),
           style: TextStyle(
             fontSize: 14,
             color: Colors.grey[600],
@@ -205,39 +205,96 @@ class _CircleOfFifthsWidgetState extends State<CircleOfFifthsWidget>
   void _handleTap(Offset localPosition, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final maxRadius = size.width * 0.4 * _animation.value;
+    final minRadius = 50.0; // 增加最小半径，避免中心区域误触
     final distanceFromCenter = (localPosition - center).distance;
     
-    // 检查是否点击在圈内（但不是中心圆）
-    if (distanceFromCenter <= maxRadius && distanceFromCenter > 45) {
+    print('Touch position: $localPosition, center: $center, distance: $distanceFromCenter');
+    print('Radius range: $minRadius - $maxRadius');
+    
+    // 检查是否点击在有效的圈内区域
+    if (distanceFromCenter <= maxRadius && distanceFromCenter >= minRadius) {
       // 计算点击角度
       final angle = math.atan2(
         localPosition.dy - center.dy,
         localPosition.dx - center.dx,
       );
       
-      // 转换为度数并调整，从顶部开始（-90度）
-      double degrees = (angle * 180 / math.pi + 90) % 360;
+      // 转换为度数，从顶部开始（0度指向上方）
+      double degrees = (angle * 180 / math.pi + 90);
+      
+      // 确保角度在0-360范围内
+      degrees = degrees % 360;
       if (degrees < 0) degrees += 360;
       
-      // 计算扇形索引
-      final sectorIndex = ((degrees + 15) / 30).floor() % 12;
+      // 更精确的扇形索引计算
+      // 每个扇形30度，从0度开始（顶部）
+      final rawSectorIndex = (degrees / 30).floor();
+      final sectorIndex = rawSectorIndex % 12;
       
-      // 调用点击处理方法
-      _handleKeyTap(sectorIndex);
+      // 简化的扇形中心角度计算
+      // 扇形0: 0-30度，中心=15度; 扇形1: 30-60度，中心=45度; 依此类推
+      final sectorCenterAngle = rawSectorIndex * 30.0 + 15.0;
+      
+      // 处理360度循环的角度差计算
+      var angleDiff = (degrees - sectorCenterAngle).abs();
+      if (angleDiff > 180) {
+        angleDiff = 360 - angleDiff;
+      }
+      
+      // 添加调试信息
+      print('Touch: degrees=$degrees, rawIndex=$rawSectorIndex, sectorIndex=$sectorIndex, distance=$distanceFromCenter');
+      print('SectorCenter: $sectorCenterAngle, angleDiff: $angleDiff');
+      
+      // 调整容差策略
+      // 下半圆需要更大的容差，因为这个区域更难精确点击
+      final tolerance = (degrees >= 135 && degrees <= 225) ? 15.0 : 12.0;
+      
+      if (angleDiff <= tolerance) {
+        print('Touch accepted: angle diff = $angleDiff, tolerance = $tolerance');
+        
+        // 额外验证：确保点击位置确实在预期的扇形内
+        final expectedKeyIndex = sectorIndex;
+        final currentKeys = _currentMode == CircleMode.major ? majorKeys : minorKeys;
+        final currentKeyNames = _currentMode == CircleMode.major ? majorKeyNames : minorKeyNames;
+        
+        if (expectedKeyIndex < currentKeys.length) {
+          print('Expected key: ${currentKeyNames[expectedKeyIndex]}');
+          _handleKeyTap(sectorIndex);
+        } else {
+          print('Touch rejected: invalid key index $expectedKeyIndex');
+        }
+      } else {
+        print('Touch rejected: angle diff = $angleDiff > tolerance $tolerance');
+      }
     }
   }
 
   // 获取小调音阶的方法
   List<String> _getMinorScaleForKey(String rootNote) {
     final chromaticNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    final rootIndex = chromaticNotes.indexOf(rootNote);
-    if (rootIndex == -1) return [];
+    
+    // 处理等音异名
+    String normalizedRoot = rootNote;
+    if (rootNote == 'Eb') normalizedRoot = 'D#';
+    if (rootNote == 'Bb') normalizedRoot = 'A#';
+    if (rootNote == 'Db') normalizedRoot = 'C#';
+    if (rootNote == 'Ab') normalizedRoot = 'G#';
+    if (rootNote == 'Gb') normalizedRoot = 'F#';
+    
+    final rootIndex = chromaticNotes.indexOf(normalizedRoot);
+    if (rootIndex == -1) {
+      print('Warning: Root note $rootNote (normalized: $normalizedRoot) not found in chromatic notes');
+      return [];
+    }
     
     // 自然小调音程：W-H-W-W-H-W-W
     final intervals = [0, 2, 3, 5, 7, 8, 10];
-    return intervals.map((interval) => 
+    final scale = intervals.map((interval) => 
       chromaticNotes[(rootIndex + interval) % 12]
     ).toList();
+    
+    print('Generated scale for $rootNote: $scale');
+    return scale;
   }
 
   // 获取小调和弦的方法
@@ -281,6 +338,9 @@ class CircleOfFifthsPainter extends CustomPainter {
     
     // 绘制中心标题
     _drawCenterTitle(canvas, center);
+    
+    // 绘制调试信息（暂时禁用以清理界面）
+    // _drawDebugInfo(canvas, center, maxRadius);
   }
 
   void _drawBackground(Canvas canvas, Offset center, double radius) {
@@ -308,6 +368,7 @@ class CircleOfFifthsPainter extends CustomPainter {
     const sectorAngle = 2 * math.pi / 12; // 30度
     
     for (int i = 0; i < keys.length; i++) {
+      // 确保绘制角度与触摸检测一致：从0度开始（顶部）
       final startAngle = (i * sectorAngle) - (math.pi / 2); // 从顶部开始
       
       final isSelected = selectedKey != null && _isKeyMatch(keys[i], selectedKey!);
@@ -374,7 +435,8 @@ class CircleOfFifthsPainter extends CustomPainter {
   void _drawCenterTitle(Canvas canvas, Offset center) {
     final titleText = mode == CircleMode.major ? majorText : minorText;
     
-    // 白色中心圆
+    // 白色中心圆 - 与触摸检测保持一致的半径
+    final centerRadius = 50.0; // 与触摸检测中的 minRadius 保持一致
     final centerPaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
@@ -384,8 +446,8 @@ class CircleOfFifthsPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     
-    canvas.drawCircle(center, 45, centerPaint);
-    canvas.drawCircle(center, 45, centerBorderPaint);
+    canvas.drawCircle(center, centerRadius, centerPaint);
+    canvas.drawCircle(center, centerRadius, centerBorderPaint);
     
     // 黑色标题
     final titlePainter = TextPainter(
@@ -411,6 +473,8 @@ class CircleOfFifthsPainter extends CustomPainter {
       ),
     );
   }
+
+
 
   bool _isKeyMatch(String displayKey, MusicKey musicKey) {
     if (mode == CircleMode.major) {

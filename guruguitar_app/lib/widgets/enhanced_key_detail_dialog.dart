@@ -450,6 +450,39 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
   }
 
   Widget _buildCharacteristicNotesCard() {
+    // 检查音阶是否有足够的音符
+    if (widget.musicKey.scale.length < 5) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.black),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.get('characteristic_notes'),
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1A1A1A),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '音阶数据不完整，无法显示特征音',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: const Color(0xFF666666),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -460,11 +493,11 @@ class _EnhancedKeyDetailDialogState extends State<EnhancedKeyDetailDialog>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildCharacteristicNote('主音 (Tonic)', widget.musicKey.scale[0], '调性的根基'),
+          _buildCharacteristicNote(l10n.get('tonic'), widget.musicKey.scale[0], '调性的根基'),
           const SizedBox(height: 12),
-          _buildCharacteristicNote('属音 (Dominant)', widget.musicKey.scale[4], '最重要的支撑音'),
+          _buildCharacteristicNote(l10n.get('dominant'), widget.musicKey.scale[4], '最重要的支撑音'),
           const SizedBox(height: 12),
-          _buildCharacteristicNote('下属音 (Subdominant)', widget.musicKey.scale[3], '和声进行的重要音'),
+          _buildCharacteristicNote(l10n.get('subdominant'), widget.musicKey.scale[3], '和声进行的重要音'),
         ],
       ),
     );
