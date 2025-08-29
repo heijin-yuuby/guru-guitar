@@ -4,7 +4,6 @@
   "outputDirectory": "build/web",
   "installCommand": "echo 'Using pre-built files'",
   "buildCommand": "echo 'Build already completed'",
-  "functions": {},
   "rewrites": [
     {
       "source": "/(.*)",
