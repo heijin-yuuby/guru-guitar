@@ -17,6 +17,7 @@ if [ ! -f "pubspec.yaml" ]; then
 fi
 
 echo "📦 获取依赖..."
+
 flutter pub get
 
 echo "🧹 清理之前的构建..."
@@ -25,10 +26,10 @@ flutter clean
 echo "🔧 启用Web支持..."
 flutter config --enable-web
 
-echo "🚀 构建Web版本（针对微信小程序优化）..."
+echo "🚀 构建Web版本（针对GitHub Pages优化）..."
 flutter build web \
   --release \
-  --base-href "/" \
+  --base-href "/guru-guitar/" \
   --dart-define=FLUTTER_WEB_USE_SKIA=true \
   --dart-define=FLUTTER_WEB_AUTO_DETECT=false
 
