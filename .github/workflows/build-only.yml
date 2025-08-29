@@ -1,4 +1,4 @@
-name: Deploy Pre-built Flutter Web to GitHub Pages
+name: Deploy GuruGuitar to GitHub Pages
 
 on:
   push:
@@ -21,8 +21,15 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+        
+      - name: List files (debug)
+        run: |
+          echo "Repository contents:"
+          ls -la
+          echo "Build directory contents:"
+          ls -la build/web/ || echo "build/web directory not found"
         
       - name: Setup Pages
         uses: actions/configure-pages@v4
