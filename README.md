@@ -1,6 +1,6 @@
 # 🎸 GuruGuitar - 吉他大师
 
-专业的Flutter Web吉他学习应用，支持GitHub Pages免费部署和微信小程序使用。
+专业的 Flutter 跨平台吉他学习应用，支持 Web、Android、iOS 等多平台运行。
 
 ## ✨ 功能特色
 
@@ -8,79 +8,41 @@
 - 🎵 **音阶练习** - 全面的音阶学习系统  
 - ⭕ **五度圈** - 音乐理论可视化工具
 - 🎪 **CAGED系统** - 和弦形状学习
-- 📱 **响应式设计** - 完美适配移动端
-- 🎮 **微信小程序** - 一键在微信中使用
+- 📱 **响应式设计** - 完美适配所有设备
 
 ## 🚀 快速开始
+
+### 环境要求
+- Flutter SDK（最新稳定版本）
+- Dart SDK（Flutter 自带）
+- Android Studio 或 VS Code（安装 Flutter 扩展）
 
 ### 本地开发
 ```bash
 cd guruguitar_app
 flutter pub get
+flutter run
+```
+
+### Web 版本
+```bash
+cd guruguitar_app
 flutter run -d chrome
 ```
-
-### GitHub Pages 部署
-```bash
-# 一键部署脚本
-./deploy_github_pages.sh
-
-# 手动推送到GitHub
-git push origin main
-```
-
-### 微信小程序
-1. 配置域名白名单：`https://heijin-yuuby.github.io`
-2. 使用 `wechat_miniprogram` 模板
-3. 修改webUrl为您的GitHub Pages地址
-4. 在微信开发者工具中导入
 
 ## 📦 项目结构
 
 ```
-guruguitar-new/
-├── guruguitar_app/          # 主应用
-│   ├── lib/                 # Flutter源码
-│   │   ├── models/          # 数据模型
-│   │   ├── screens/         # 页面组件
-│   │   ├── widgets/         # UI组件
-│   │   └── utils/           # 工具类
-│   ├── web/                 # Web配置
-│   └── build/web/           # 构建输出
-├── wechat_miniprogram/      # 微信小程序
-│   └── pages/
-├── .github/workflows/       # GitHub Actions
-└── README.md
-```
-
-## 🌐 在线访问
-
-- **GitHub Pages**: https://heijin-yuuby.github.io/guru-guitar/
-- **Vercel备用**: https://guru-guitar.vercel.app
-
-## 🎮 微信小程序集成
-
-### 域名配置
-在微信小程序管理后台配置合法域名：
-```
-request合法域名: https://heijin-yuuby.github.io
-业务域名: https://heijin-yuuby.github.io
-```
-
-### 小程序代码
-```javascript
-// pages/index/index.js
-Page({
-  data: {
-    webUrl: 'https://heijin-yuuby.github.io/guru-guitar/'
-  }
-});
-```
-
-### WebView页面
-```xml
-<!-- pages/index/index.wxml -->
-<web-view src="{{webUrl}}" wx:if="{{webLoaded}}"></web-view>
+guruguitar_app/
+├── lib/
+│   ├── models/          # 数据模型
+│   ├── screens/         # 页面组件
+│   ├── widgets/         # UI组件
+│   └── utils/           # 工具类
+├── android/             # Android 平台配置
+├── ios/                 # iOS 平台配置
+├── web/                 # Web 平台配置
+└── pubspec.yaml         # 项目依赖配置
 ```
 
 ## 🛠 技术栈
@@ -128,34 +90,24 @@ Page({
 - 💻 桌面 (1024px+)
 - 🖥 大屏 (1440px+)
 
-## 🔧 部署说明
+## 📦 构建发布
 
-### GitHub Pages 部署
-1. Fork此仓库
-2. 在仓库设置中启用Pages
-3. 选择GitHub Actions作为源
-4. 自动部署完成
+### Web 版本
+```bash
+cd guruguitar_app
+flutter build web
+```
 
-### Vercel 部署
-1. 连接GitHub仓库
-2. 自动检测Flutter项目
-3. 一键部署完成
+### Android APK
+```bash
+cd guruguitar_app
+flutter build apk
+```
 
-### 自定义域名
-支持绑定您自己的域名：
-- 在DNS中添加CNAME记录
-- 在部署平台设置自定义域名
-- 自动获取SSL证书
-
-## 🎨 自定义主题
-
-支持自定义应用主题：
-```dart
-// lib/utils/app_theme.dart
-ThemeData customTheme = ThemeData(
-  primarySwatch: Colors.amber,
-  visualDensity: VisualDensity.adaptivePlatformDensity,
-);
+### iOS 应用
+```bash
+cd guruguitar_app
+flutter build ios
 ```
 
 ## 🌍 国际化支持
@@ -164,21 +116,12 @@ ThemeData customTheme = ThemeData(
 - 🇨🇳 简体中文 (默认)
 - 🇺🇸 English (计划中)
 
-添加新语言：
-```dart
-// lib/utils/app_localizations.dart
-class AppLocalizations {
-  // 添加新的翻译文本
-}
-```
-
 ## 🚀 性能优化
 
 - ✅ 懒加载组件
-- ✅ 图片预加载
 - ✅ 代码分割
 - ✅ 缓存策略
-- ✅ PWA支持
+- ✅ 响应式设计
 
 ## 📈 功能路线图
 
@@ -188,7 +131,6 @@ class AppLocalizations {
 - [ ] 📊 练习统计
 - [ ] 🎯 个性化练习计划
 - [ ] 🔊 节拍器功能
-- [ ] 📱 iOS/Android App
 
 ## 🤝 贡献指南
 
@@ -204,12 +146,6 @@ class AppLocalizations {
 
 此项目采用 MIT 协议 - 查看 [LICENSE](LICENSE) 了解详情
 
-## 🙏 致谢
-
-- Flutter团队提供优秀的框架
-- Material Design提供设计规范
-- 开源社区的无私贡献
-
 ## 💖 支持项目
 
 如果这个项目对您有帮助：
@@ -218,12 +154,6 @@ class AppLocalizations {
 - 🐛 报告Bug和建议
 - 🔀 提交Pull Request
 - 📢 分享给朋友
-
-## 📞 联系方式
-
-- 📧 Email: your-email@example.com
-- 🐙 GitHub: @heijin-yuuby
-- 💬 微信: your-wechat-id
 
 ---
 
