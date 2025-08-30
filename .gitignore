@@ -1,14 +1,56 @@
-# IDE
-.vscode/
-.idea/
+# Miscellaneous
+*.class
+*.log
+*.pyc
 *.swp
-*.swo
-
-# OS
 .DS_Store
-Thumbs.db
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
 
-# Local env files
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code
+.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/flutter_assets
+**/ios/Flutter/flutter_export_environment.sh
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+# Keep web build for GitHub Pages
+!/build/web/
+
+# Web related
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Vercel
+.vercel
+
+# Environment variables
+.env
 .env.local
 .env.development.local
 .env.test.local
@@ -16,20 +58,13 @@ Thumbs.db
 
 # Logs
 logs
-*.log
 
 # Temporary files
 *.tmp
 *.temp
 
-# Flutter specific (保留构建好的web文件)
-guruguitar_app/.dart_tool/
-guruguitar_app/.packages
-guruguitar_app/.pub/
-guruguitar_app/android/
-guruguitar_app/ios/
-guruguitar_app/linux/
-guruguitar_app/macos/
-guruguitar_app/windows/
-guruguitar_app/test/
-!guruguitar_app/build/web/
+# OS
+Thumbs.db
+
+# Local development
+*.local
