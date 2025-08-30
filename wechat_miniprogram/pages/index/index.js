@@ -1,8 +1,8 @@
 // pages/index/index.js
 Page({
   data: {
-    // 替换为您的 Vercel 部署域名
-    webUrl: 'https://your-guruguitar-app.vercel.app',
+    // GitHub Pages 部署域名（请替换为您的实际GitHub用户名）
+    webUrl: 'https://your-username.github.io/guruguitar-new/',
     webLoaded: false
   },
 

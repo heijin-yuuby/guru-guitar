@@ -1,0 +1,35 @@
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Flutter specific (保留构建好的web文件)
+guruguitar_app/.dart_tool/
+guruguitar_app/.packages
+guruguitar_app/.pub/
+guruguitar_app/android/
+guruguitar_app/ios/
+guruguitar_app/linux/
+guruguitar_app/macos/
+guruguitar_app/windows/
+guruguitar_app/test/
+!guruguitar_app/build/web/
