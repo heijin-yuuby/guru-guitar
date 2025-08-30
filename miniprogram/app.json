@@ -1,0 +1,54 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/circle/circle",
+    "pages/fretboard/fretboard",
+    "pages/scales/scales",
+    "pages/settings/settings"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#1A1A1A",
+    "navigationBarTitleText": "吉他大师",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#FAFAFA"
+  },
+  "tabBar": {
+    "color": "#7A7E83",
+    "selectedColor": "#1A1A1A",
+    "borderStyle": "white",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      {
+        "pagePath": "pages/circle/circle",
+        "iconPath": "images/circle.png",
+        "selectedIconPath": "images/circle-active.png",
+        "text": "五度圈"
+      },
+      {
+        "pagePath": "pages/fretboard/fretboard",
+        "iconPath": "images/fretboard.png",
+        "selectedIconPath": "images/fretboard-active.png",
+        "text": "指板练习"
+      },
+      {
+        "pagePath": "pages/scales/scales",
+        "iconPath": "images/scales.png",
+        "selectedIconPath": "images/scales-active.png",
+        "text": "音阶训练"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "iconPath": "images/settings.png",
+        "selectedIconPath": "images/settings-active.png",
+        "text": "设置"
+      }
+    ]
+  },
+  "networkTimeout": {
+    "request": 10000,
+    "downloadFile": 10000
+  },
+  "debug": false,
+  "sitemapLocation": "sitemap.json"
+}

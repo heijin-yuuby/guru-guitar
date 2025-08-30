@@ -1,0 +1,115 @@
+<!--pages/fretboard/fretboard.wxml-->
+<view class="container">
+  <view class="page-title">指板练习</view>
+  
+  <!-- 控制面板 -->
+  <view class="section">
+    <view class="section-title">练习设置</view>
+    <view class="controls">
+      <view class="control-row">
+        <text class="control-label">当前调性:</text>
+        <view class="key-selector">
+          <picker bindchange="onKeyChange" value="{{selectedKeyIndex}}" range="{{keyNames}}">
+            <view class="picker-value">{{currentKey.name}}</view>
+          </picker>
+        </view>
+      </view>
+      
+      <view class="control-row">
+        <text class="control-label">显示模式:</text>
+        <view class="display-modes">
+          <view class="mode-btn {{showNotes ? 'active' : ''}}" bindtap="toggleNotes">
+            音符名
+          </view>
+          <view class="mode-btn {{showIntervals ? 'active' : ''}}" bindtap="toggleIntervals">
+            音程关系
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 吉他指板 -->
+  <view class="section">
+    <view class="fretboard-container">
+      <canvas class="fretboard-canvas" canvas-id="fretboardCanvas"
+              bindtouchstart="onFretboardTouch"
+              bindtouchend="onFretboardTouchEnd">
+      </canvas>
+      
+      <!-- 品格标记 -->
+      <view class="fret-markers">
+        <view class="fret-marker" wx:for="{{fretMarkers}}" wx:key="index"
+              style="left: {{item.position}}%;">
+          {{item.fret}}
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 音阶信息 -->
+  <view class="section" wx:if="{{currentKey}}">
+    <view class="section-title">{{currentKey.name}}音阶</view>
+    <view class="scale-info">
+      <view class="scale-notes">
+        <view class="scale-note {{index === 0 ? 'root' : ''}}" 
+              wx:for="{{currentKey.scale}}" 
+              wx:key="index"
+              bindtap="highlightNote"
+              data-note="{{item}}">
+          <view class="note-name">{{item}}</view>
+          <view class="note-degree">{{scaleDegrees[index]}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 练习模式 -->
+  <view class="section">
+    <view class="section-title">练习模式</view>
+    <view class="practice-modes">
+      <view class="practice-mode" bindtap="startNoteFinding">
+        <view class="mode-icon">🎯</view>
+        <view class="mode-info">
+          <view class="mode-name">音符定位</view>
+          <view class="mode-desc">在指板上快速找到指定音符</view>
+        </view>
+      </view>
+      
+      <view class="practice-mode" bindtap="startScalePractice">
+        <view class="mode-icon">🎵</view>
+        <view class="mode-info">
+          <view class="mode-name">音阶练习</view>
+          <view class="mode-desc">练习当前调性的音阶指法</view>
+        </view>
+      </view>
+      
+      <view class="practice-mode" bindtap="startIntervalTraining">
+        <view class="mode-icon">🎼</view>
+        <view class="mode-info">
+          <view class="mode-name">音程训练</view>
+          <view class="mode-desc">学习音程关系和位置</view>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 使用提示 -->
+  <view class="section">
+    <view class="section-title">使用提示</view>
+    <view class="tips">
+      <view class="tip-item">
+        <view class="tip-icon">💡</view>
+        <view class="tip-text">点击指板上的位置可以播放音符</view>
+      </view>
+      <view class="tip-item">
+        <view class="tip-icon">🎸</view>
+        <view class="tip-text">选择不同调性查看音阶在指板上的分布</view>
+      </view>
+      <view class="tip-item">
+        <view class="tip-icon">📖</view>
+        <view class="tip-text">切换显示模式学习音符名和音程关系</view>
+      </view>
+    </view>
+  </view>
+</view>

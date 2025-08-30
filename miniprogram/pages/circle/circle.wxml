@@ -1,0 +1,119 @@
+<!--pages/circle/circle.wxml-->
+<view class="container">
+  <view class="page-title">五度圈学习</view>
+  
+  <!-- 五度圈画布 -->
+  <view class="section">
+    <canvas class="circle-canvas" canvas-id="circleCanvas" 
+            bindtouchstart="onCanvasTouch" 
+            bindtouchmove="onCanvasTouch"
+            bindtouchend="onCanvasTouchEnd">
+    </canvas>
+    
+    <!-- 选中调性信息 -->
+    <view class="key-info" wx:if="{{selectedKey}}">
+      <view class="key-name">{{selectedKey.name}}</view>
+      <view class="key-details">
+        <view class="detail-row">
+          <text class="label">音阶：</text>
+          <view class="notes">
+            <text class="note {{index === 0 ? 'root' : ''}}" 
+                  wx:for="{{selectedKey.scale}}" 
+                  wx:key="index">{{item}}</text>
+          </view>
+        </view>
+        
+        <view class="detail-row">
+          <text class="label">和弦：</text>
+          <view class="chords">
+            <text class="chord" 
+                  wx:for="{{selectedKey.chords}}" 
+                  wx:key="index"
+                  bindtap="playChord"
+                  data-chord="{{item}}">{{item}}</text>
+          </view>
+        </view>
+        
+        <view class="detail-row">
+          <text class="label">调号：</text>
+          <text class="key-signature">
+            {{selectedKey.sharps > 0 ? selectedKey.sharps + '个升号' : ''}}
+            {{selectedKey.flats > 0 ? selectedKey.flats + '个降号' : ''}}
+            {{selectedKey.sharps === 0 && selectedKey.flats === 0 ? '无升降号' : ''}}
+          </text>
+        </view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 相关调性 -->
+  <view class="section" wx:if="{{selectedKey}}">
+    <view class="section-title">相关调性</view>
+    <view class="related-keys">
+      <view class="key-card" 
+            wx:for="{{relatedKeys}}" 
+            wx:key="name"
+            bindtap="selectKey"
+            data-key="{{item}}">
+        <view class="key-card-name">{{item.name}}</view>
+        <view class="key-card-relation">{{item.relation}}</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 练习建议 -->
+  <view class="section" wx:if="{{selectedKey}}">
+    <view class="section-title">练习建议</view>
+    <view class="practice-suggestions">
+      <view class="suggestion-item">
+        <view class="suggestion-icon">🎸</view>
+        <view class="suggestion-content">
+          <view class="suggestion-title">音阶练习</view>
+          <view class="suggestion-desc">练习{{selectedKey.name}}音阶，从慢速开始</view>
+        </view>
+        <view class="suggestion-action" bindtap="goToScales">开始</view>
+      </view>
+      
+      <view class="suggestion-item">
+        <view class="suggestion-icon">🎵</view>
+        <view class="suggestion-content">
+          <view class="suggestion-title">和弦进行</view>
+          <view class="suggestion-desc">尝试常用的和弦进行：I-vi-IV-V</view>
+        </view>
+        <view class="suggestion-action" bindtap="practiceChords">练习</view>
+      </view>
+      
+      <view class="suggestion-item">
+        <view class="suggestion-icon">🎼</view>
+        <view class="suggestion-content">
+          <view class="suggestion-title">指板位置</view>
+          <view class="suggestion-desc">在指板上找到{{selectedKey.note}}的各个位置</view>
+        </view>
+        <view class="suggestion-action" bindtap="goToFretboard">查看</view>
+      </view>
+    </view>
+  </view>
+  
+  <!-- 使用说明 -->
+  <view class="section" wx:if="{{!selectedKey}}">
+    <view class="section-title">如何使用</view>
+    <view class="instructions">
+      <view class="instruction-item">
+        <view class="instruction-number">1</view>
+        <view class="instruction-text">点击五度圈上的任意调性</view>
+      </view>
+      <view class="instruction-item">
+        <view class="instruction-number">2</view>
+        <view class="instruction-text">查看该调的音阶和和弦</view>
+      </view>
+      <view class="instruction-item">
+        <view class="instruction-number">3</view>
+        <view class="instruction-text">探索相关调性的关系</view>
+      </view>
+      <view class="instruction-item">
+        <view class="instruction-number">4</view>
+        <view class="instruction-text">根据建议进行针对性练习</view>
+      </view>
+    </view>
+  </view>
+</view>
